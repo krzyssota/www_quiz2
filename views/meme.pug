@@ -1,0 +1,17 @@
+html
+    head
+        title= title
+    style
+        include style.css
+    body
+        h1="Meme listing"
+        form(method='POST', action=`/meme/${meme.getId()}`)
+            p new price
+            input(type='number', placeholder='', name='price')
+            input(type="hidden" name="_csrf" value=csrfToken)
+            button(type='submit') change price
+        ul
+            each price in meme.getListingFromNewest()
+                li
+                   p #{price}
+                   

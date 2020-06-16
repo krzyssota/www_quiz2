@@ -1,0 +1,40 @@
+{
+  "name": "zal1_quiz",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "compile_start": "npm run compile; npm run start",
+    "compileback_start": "tsc -p ./tsconfig.backend.json; npm run start",
+    "compilefront_start": "tsc -p ./tsconfig.frontend.json; npm run start",
+    "compile": "tsc -p ./tsconfig.backend.json; tsc -p ./tsconfig.frontend.json",
+    "start": "node ./dist/app.js",
+    "createdb": "node dist/createDB.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krzyssota/mimuw_www_quiz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krzyssota/mimuw_www_quiz/issues"
+  },
+  "homepage": "https://github.com/krzyssota/mimuw_www_quiz#readme",
+  "dependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/csurf": "^1.9.36",
+    "@types/express": "^4.17.6",
+    "@types/express-session": "^1.17.0",
+    "@types/node": "^13.13.4",
+    "@types/pug": "^2.0.4",
+    "@types/sqlite3": "^3.1.6",
+    "connect-sqlite3": "^0.9.11",
+    "cookie-parser": "^1.4.5",
+    "csurf": "^1.11.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "pug": "^3.0.0",
+    "sqlite3": "^4.2.0"
+  }
+}

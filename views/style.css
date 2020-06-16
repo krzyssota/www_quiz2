@@ -1,0 +1,29 @@
+body {
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+    background-color: rgb(252, 245, 239);
+  }
+  
+  ul {
+    list-style-type: none;
+   }
+   
+  img {
+      height: 50%;
+      width: 50%;
+      object-fit: contain; 
+  }
+  
+  div.picture {   
+      margin: 5px;
+      border: 1px solid #ccc;
+      float: left;
+  }
+    
+  div.picture img {
+      width: 100%;
+      height: auto;
+  }
+  

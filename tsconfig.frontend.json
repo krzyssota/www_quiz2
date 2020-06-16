@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES2016",
+        "lib": ["ES5", "DOM", "ES2015"],
+        "outDir": "./static",
+        "watch": false
+    },
+    "include": [
+        "./src/frontend/*.ts"
+    ]
+}

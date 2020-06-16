@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href="main.css">
+</head>
+
+<body>
+    <div id="startWrapper">
+        <section id="startCard">
+            <div class="banner">
+                <p>QUISSUP</p>
+                
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>BEST SCORES</th>
+                    </tr>
+                </thead>
+                <tbody id="bestScoresTableBody">
+                </tbody>
+            </table>
+            <button id="startQuizButton">Start a quiz</button>
+        </section>
+    </div>
+    <div id="cardWrapper" style="visibility: hidden;">
+        <section id="quizCard">
+
+            <div class="banner">
+                <p>QUISSUP</p>
+                <article>IDK QUISSUP WITH YOU?</article>
+            </div>
+
+
+            <div id="timer" class="infoBox" style="visibility: hidden"></div>
+            <div id="number" class="infoBox" style="visibility: hidden"></div>
+
+            <button id="prevButton">Previous</button>
+            <button id="nextButton">Next</button>
+
+
+            <button id="cancelQuizButton">Cancel</button>
+            <button id="submitQuizButton" disabled>Submit quiz</button>
+
+
+            <section id="cardContent">
+                <p id="introduction"></p>
+                <div>
+                    <p id="question" style="display: inline"></p>
+                    <input type="number" name="playersAnswer" id="playersAnswer"
+                        style="display: inline; visibility: hidden;">
+                    <button id="submitAnswerButton" style="display: inline; visibility: hidden;">Submit
+                        answer</button>
+                </div>
+
+            </section>
+        </section>
+    </div>
+    <div id="scoreWrapper" style="visibility: hidden">
+        <table>
+            <caption>SCORE</caption>
+            <thead>
+                <tr>
+                    <th>question</th>
+                    <th>answer</th>
+                    <th>time spent</th>
+                    <th>time fine</th>
+                </tr>
+            </thead>
+            <tbody id="scoreTableBody">
+            </tbody>
+            <tfoot>
+                <tr style="background-color: yellow">
+                    <td colspan="3">OVERALL</td>
+                    <td id="overallScore"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <button id="saveScoreButton" style="display: inline">Save score</button>
+        <button id="saveScoreAndStatisticsButton" style="display: inline">Save score and time
+            statistics</button>
+    </div>
+
+
+    <script type="module" src='main.js'></script>
+</body>
+
+</html>

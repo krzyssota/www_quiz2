@@ -1,0 +1,24 @@
+html
+    head
+        title= title
+    style
+        include main.css
+    body
+        div(id="loginWrapper")
+            header
+                if login
+                    p Welcome #{login}!
+                    a(href='/')
+                        button(type='button') BACK TO MARKET
+
+                form(action="", method="post")
+                    | Login: 
+                    input(type="text", name='login', required)
+                    | Password: 
+                    input(type="password", name="password", required)
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    button(type="submit") LOG IN
+                    if error
+                        p(style={color: 'red'})
+                            | #{error}
+            
