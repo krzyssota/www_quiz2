@@ -1,0 +1,48 @@
+html
+    head
+        title= title
+    style
+        include main.css
+    body
+        div(id="loginWrapper")
+            header
+                if login
+                    p Welcome #{login}!
+                    a(href='/')
+                        button(type='button') BACK
+                    a(href='/logout')
+                        button(type='button') LOGOUT
+
+                form(action="/users/login", method="post")
+                    | LOGIN: 
+                    input(type="text", name='login', required)
+                    br
+                    | PASSWORD: 
+                    input(type="password", name="password", required)
+                    br
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    button(type="submit") LOG IN
+                    if loginError
+                        p(style={color: 'red'})
+                            | #{loginError}    
+
+                p CHANGE LOGIN
+                    form(action="/users/changePassword", method="post")
+                        | LOGIN:
+                        input(type="text", name='login', required)
+                        br
+                        | OLD PASSWORD:
+                        input(type="password", name="oldPassword", required)
+                        br
+                        | PASSWORD: 
+                        input(type="password", name="newPassword", required)
+                        br
+                        | REPEAT PASSWORD:
+                        input(type="password", name="repeatedPassword", required)
+                        br
+                        input(type="hidden" name="_csrf" value=csrfToken)
+                        button(type="submit") CHANGE
+                        if changeError
+                            p(style={color: 'red'})
+                                | #{changeError}
+            
