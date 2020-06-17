@@ -4,7 +4,9 @@ import csurf = require('csurf');
 import * as sqlite from 'sqlite3';
 sqlite.verbose();
 import cookieParser = require('cookie-parser');
-import { open_db } from './DatabaseHandler.js'
+import * as USERS from './users.js';
+import * as QUIZES from './quizes.js'
+
 // tslint:disable-next-line: no-var-requires
 const session = require('express-session');
 const connectSqlite = require('connect-sqlite3');
@@ -15,7 +17,7 @@ const app = express();
 app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'pug');
 
-export const secretString = '102101101108032116104101032098101114110'
+const secretString = '102101101108032116104101032098101114110'
 const port = 3000;
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,17 +37,23 @@ app.listen(port, err => {
 
 app.use(express.static(path.join(__dirname + '/../static')))
 
-app.get('/', (req: any,res: any) => {
-    res.sendFile(path.join(__dirname, '/../static/quiz.html'));
-})
-
 // USERS
+app.get('/', csrfProtection, USERS.renderUsers)
+app.get('/users', csrfProtection, USERS.renderUsers)
+app.get('/users/changePassword', csrfProtection, USERS.renderUsers)
+app.get('/users/login', csrfProtection, USERS.renderUsers)
 
-import * as USERS from './users.js';
-app.get('/users', csrfProtection, USERS.renderUsers);
-app.get('/users/logout', csrfProtection, USERS.logoutUser);
-app.post('/users/changePassword', csrfProtection, USERS.changePassword);
-app.post('/users/login', csrfProtection, USERS.logUserIn);
+app.get('/users/logout', csrfProtection, USERS.logoutUser)
+app.post('/users/changePassword', csrfProtection, USERS.changePassword)
+app.post('/users/login', csrfProtection, USERS.logUserIn)
+
+app.get('/chooseQuiz', QUIZES.sendSelection)
+app.get('/chooseQuiz/:quizId(\\d+)', QUIZES.sendChosen)
+
+
+
+
+// app.get('/statistics', csrfProtection, STATISTICS.renderStatistics)
 
 
 // error handling

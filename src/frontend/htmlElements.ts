@@ -24,3 +24,5 @@ export const startWrapperEl = document.getElementById("startWrapper") as HTMLEle
 export const bestScoresTableBodyEl = document.getElementById("bestScoresTableBody") as HTMLElement;
 export const scoreTableBodyEl = document.getElementById("scoreTableBody") as HTMLElement;
 export const overallScoreEl = document.getElementById("overallScore") as HTMLElement;
+
+

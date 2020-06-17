@@ -1,10 +1,3 @@
-// import { addToDatabase, diplayDataByIndex } from './dbModule';
-/* import {
-    introductionEl, questionEl, timerEl, submitAnswerButtonEl, submitQuizButtonEl,
-    prevButtonEl, nextButtonEl, saveScoreButtonEl, saveScoreAndStatisticsButtonEl, inputEl,
-    startquizButtonEl, scoreWrapperEl, startWrapperEl, cardWrapperEl, cancelQuizButtonEl,
-    bestScoresTableBodyEl, scoreTableBodyEl, numberEl, overallScoreEl
-} from "./htmlElements" */
 import * as DB from './dbModule.js';
 import * as HTML from "./htmlElements.js";
 const jsonQuiz1 = `{

@@ -8,10 +8,15 @@ html
             header
                 if login
                     p Welcome #{login}!
-                    a(href='/')
-                        button(type='button') BACK
                     a(href='/logout')
                         button(type='button') LOGOUT
+                    br
+                    a(href='/chooseQuiz')
+                        button(type='button') CHOOSE QUIZ
+                    br
+                    a(href='/statistics')
+                        button(type='button') SEE YOU STATISTICS
+                    br
 
                 form(action="/users/login", method="post")
                     | LOGIN: 

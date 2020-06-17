@@ -56,8 +56,14 @@ export async function changePassword (req: any, res: any) {
             })
         })
         sessionsDB = open_session_db();
-        const rows: any[] = await new Promise((resolve, reject) => {
-            
+        await new Promise((resolve, reject) => {
+            sqlQ = `DELETE FROM sessions WHERE sess LIKE '%"user":"' || ? || '"%'`,
+            sessionsDB.run(sqlQ, [enteredLogin], (err: any) => {
+                if(err) reject(new Error('Internal error. Couldn\'t remove sessions.'));
+                resolve();
+            })
+        })
+/*         const rows: any[] = await new Promise((resolve, reject) => {
             sqlQ = `SELECT * FROM sessions;`
             sessionsDB.all(sqlQ, (err: any, rows: any[]) => {
                 if(err) reject(new Error('Internal error. Couldn\'t get session records.'));
@@ -67,7 +73,7 @@ export async function changePassword (req: any, res: any) {
         for(const row in rows) {
             console.log('row ' + row)
             console.log('rows ' + rows)
-            
+
             const sid: string = row.sid;
             const sess: any = JSON.parse(row.sess);
 
@@ -85,7 +91,7 @@ export async function changePassword (req: any, res: any) {
                     })
                 })
             }
-        }
+        } */
         res.render('users', {csrfToken: req.csrfToken()});
     } catch(err) {
         res.render('users', {changeError: err, csrfToken: req.csrfToken()});
