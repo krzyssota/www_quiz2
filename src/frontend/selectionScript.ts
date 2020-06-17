@@ -19,8 +19,9 @@ ViewQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
 
     try {
         console.log('feczuje' + 'http://localhost:3000/chooseQuiz/' + quizId)
-        const response = await fetch('http://localhost:3000/chooseQuiz/' + quizId)
-        console.log(response.json());
+        const response: Response = await fetch('http://localhost:3000/chooseQuiz/' + quizId)
+        const responseStr: String = await response.json()
+        console.log(responseStr);
     } catch(err) {
         console.error('Cannot obtain quiz')
     }
