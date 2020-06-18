@@ -1,4 +1,3 @@
-import * as DB from './dbModule.js'
 import * as HTML from "./htmlElements.js"
 
 interface IQuestions {
@@ -31,7 +30,7 @@ let currTime: number;
 let timeSpent: number;
 
 resetVariables();
-DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
+// DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
 
 // TIMER
 function startTimer(): void {
@@ -141,11 +140,11 @@ HTML.saveScoreButtonEl.addEventListener('click', (ev: MouseEvent) => {
     // save to database
     const score: number = timeSpent;
     const statistics: number[] = [];
-    DB.addToDatabase(score, statistics);
+    // DB.addToDatabase(score, statistics);
     // hide summary, display home page
     HTML.scoreWrapperEl.style.visibility = "hidden";
     HTML.startWrapperEl.style.visibility = "visible";
-    DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
+    // DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
     resetVariables();
 })
 
@@ -154,11 +153,11 @@ HTML.saveScoreAndStatisticsButtonEl.addEventListener('click', (ev: MouseEvent) =
     // save to database
     const score: number = timeSpent;
     const statistics: number[] = userTimes;
-    DB.addToDatabase(score, statistics);
+    // DB.addToDatabase(score, statistics);
     // hide summary, display home page
     HTML.scoreWrapperEl.style.visibility = "hidden";
     HTML.startWrapperEl.style.visibility = "visible";
-    DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
+    // DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
     resetVariables();
 })
 

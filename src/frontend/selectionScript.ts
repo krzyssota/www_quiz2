@@ -1,7 +1,23 @@
+import * as INTERFACES from "./communicationF.js";
 
 const viewQuizesTableBodyEl = document.getElementById("viewQuizesTableBody") as HTMLElement;
 const quizSelectionFormEl = document.getElementById("quizSelectionForm") as HTMLFormElement;
 const ViewQuizButtonEl = document.getElementById("viewQuizButton") as HTMLButtonElement
+
+async function fetchQuizSelectionContent() {
+    try {
+        let quizId: number;
+        const response: Response = await fetch('http://localhost:3000/chooseQuiz/selection')
+        const quizSelection: INTERFACES.ShortRepresentations = await response.json()
+        let key: string;
+        for(key in quizSelection) {
+            console.log('key ' + key + ' obj[key] ' + quizSelection[key])
+        }
+    } catch (err) {
+        console.error(err)
+    }
+}
+fetchQuizSelectionContent();
 
 ViewQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     event.preventDefault();
@@ -16,12 +32,17 @@ ViewQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
         console.log('nie nie dai')
         return;
     }
-
+    interface i {
+        [key: number] : string
+    }
     try {
         console.log('feczuje' + 'http://localhost:3000/chooseQuiz/' + quizId)
         const response: Response = await fetch('http://localhost:3000/chooseQuiz/' + quizId)
-        const responseStr: String = await response.json()
-        console.log(responseStr);
+        const quizObject: i = await response.json()
+        for(let key in quizObject) {
+            console.log('halooo key ' + key + ' obj[key] ' + quizObject[key])
+        }
+        console.log('po forze')
     } catch(err) {
         console.error('Cannot obtain quiz')
     }

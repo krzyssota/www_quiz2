@@ -47,8 +47,9 @@ app.get('/users/logout', csrfProtection, USERS.logoutUser)
 app.post('/users/changePassword', csrfProtection, USERS.changePassword)
 app.post('/users/login', csrfProtection, USERS.logUserIn)
 
-app.get('/chooseQuiz', QUIZES.sendSelection)
-app.get('/chooseQuiz/:quizId(\\d+)', QUIZES.sendChosen)
+app.get('/chooseQuiz', QUIZES.sendSelectionHTML)
+app.get('/chooseQuiz/selection', QUIZES.sendSelection)
+app.get('/chooseQuiz/selection/:quizId(\\d+)', QUIZES.sendChosen)
 
 
 
