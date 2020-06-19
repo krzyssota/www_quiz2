@@ -100,9 +100,9 @@ export function quizInDB(db: sqlite.Database, quizId: number): Promise<boolean> 
     })
 }
 
-export function quizAlreadyTaken(db: sqlite.Database, login: string): Promise<boolean> {
+export function quizAlreadyTaken(db: sqlite.Database, quizId: number, login: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        db.get(`SELECT COUNT(*) AS cnt FROM userAnswers WHERE userLogin='${login}';`,
+        db.get(`SELECT COUNT(*) AS cnt FROM userAnswers WHERE userLogin='${login}' AND quizId=${quizId};`,
             (err, row) => {
                 if(err) {
                     reject(new Error('Internal error while checking if user already taken given quiz.'))
@@ -132,3 +132,76 @@ export function composeSelection(db: sqlite.Database): Promise<INTERFACES.ShortR
     })
 }
 
+export function collectQuizHeader(db: sqlite.Database, quizId: number): Promise<INTERFACES.QuizHeader> {
+    let header: INTERFACES.QuizHeader = {quizId: -1, description: 'placeholder'}
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT description FROM quizJSON WHERE quizId=${quizId};`,
+        (err, row) => {
+            if(err) {
+                reject(new Error('Internal error while extracting quiz header.'))
+            }
+            header.quizId = quizId
+            header.description = row.description
+            resolve(header)
+        })
+    })
+}
+
+export function collectQuizQuestions(db: sqlite.Database, quizId: number): Promise<INTERFACES.QuizQuestionsToSolve> {
+    let questions: INTERFACES.QuizQuestionsToSolve = {};
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT questionNo, question, penalty FROM quizQuestions WHERE quizId=${quizId};`,
+        (err, rows) => {
+            if(err) {
+                reject(new Error('Internal error while extracting quiz questions to send.'))
+            }
+            let row: any;
+            for(row of rows) {
+                questions[parseInt(row.questionNo)] = [row.question, row.penalty]
+            }
+            resolve(questions)
+        })
+    })
+}
+
+export function collectUserAnswers(db: sqlite.Database, quizId: number, login: string): Promise<INTERFACES.QuizQuestionsResult> {
+    let userAnswers: INTERFACES.QuizQuestionsResult = {};
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT questionNo, question, correctAnswer, userAnswer, penalty, timeSpent
+        FROM userAnswers WHERE userLogin='${login}' AND quizId=${quizId};`,
+            (err, rows) => {
+                if(err) {
+                    reject(new Error('Internal error while checking user\'s answers.'))
+                }
+            let row: any;
+            for(row of rows) {
+                userAnswers[parseInt(row.questionNo)] = [row.question, row.correctAnswer, row.userAnswer, row.penalty, row.timeSpent, -1]
+            }
+            resolve(userAnswers)
+        })
+    })
+}
+
+export async function collectAverageTimes(db: sqlite.Database, quizId: number, results: INTERFACES.QuizQuestionsResult): Promise<void> {
+    const quizLen: number = Object.keys(results).length
+    let sqlQ: string = ""
+    for(let questionNo: number = 1; questionNo <= quizLen; questionNo++) {
+        let timeSum: number = 0;
+        sqlQ = `SELECT timeSpent FROM userAnswers WHERE correctAnswer=userAnswer AND quizId=${quizId} AND questionNo=${questionNo};`
+        await new Promise((resolve, reject) => {
+            db.all(sqlQ, (err, rows) => {
+                if(err) {
+                    reject(new Error('Internal error while summing users\' answers.'))
+                }
+                const usersNumber: number = rows.length
+                let row: any;
+                for(row of rows) {
+                    timeSum += parseInt(row.timeSpent)
+                }
+                console.log('quiz ' + quizId + ' questNo ' + questionNo + ' timesum ' + timeSum + ' usernumber ' + usersNumber)
+                if(usersNumber !== 0) results[questionNo][5] = timeSum/usersNumber
+                resolve();
+            })
+        })
+    }
+}

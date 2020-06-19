@@ -50,7 +50,9 @@ app.post('/users/login', csrfProtection, USERS.logUserIn)
 app.get('/chooseQuiz', csrfProtection, QUIZES.sendSelectionHTML)
 app.get('/chooseQuiz/selectionRequest', csrfProtection, QUIZES.sendSelection)
 app.get('/chooseQuiz/typeRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendType)
-// app.get('/chooseQuiz/quizRequest/:quizId(\\d+)', QUIZES.sendQuiz)
+app.get('/chooseQuiz/quizQuestionsRequest/:quizId(\\d+)', QUIZES.sendQuiz)
+app.get('/chooseQuiz/quizResultsRequest/:quizId(\\d+)', QUIZES.sendResults)
+
 
 
 

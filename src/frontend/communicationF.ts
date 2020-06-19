@@ -13,19 +13,19 @@ export interface QuizHeader {
 }
 
 export interface QuizQuestionsInDB {
-    [questionNo: number]: [string, string, number]  // questionNo -> [question, answer, penalty]
+    [questionNo: number]: [string, string, number]  // questionNo -> [question, correct answer, penalty]
 }
 
 export interface QuizQuestionsToSolve {
-    [questionNo: number]: [string, string] // questionNo -> [question, correct answer]
+    [questionNo: number]: [string, number] // questionNo -> [question, penalty]
 }
 
 export interface QuizQuestionsSolved {
-    [questionNo: number]: [string, string, number]  // questionNo -> [question, answer, % time spend]
+    [questionNo: number]: [string, string, number]  // questionNo -> [question, user answer, % time spend]
 }
 
 export interface QuizQuestionsResult {
-    [questionNo: number]: [string, string, string, number]  // questionNo -> [question, correct answer, user answer, avg time spent]
+    [questionNo: number]: [string, string, string, number, number, number]  // questionNo -> [question, correct answer, user answer, penalty, timeSpent, avg time spent]
 }
 
 export interface Top5Times {

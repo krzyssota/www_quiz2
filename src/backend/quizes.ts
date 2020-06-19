@@ -48,8 +48,7 @@ export async function sendType(req: any, res: any) {
             throw 404
             return;
         }
-        console.log('to sie wykonuje')
-        if(await DB.quizAlreadyTaken(db, req.session.user)) typeObj.type = 'results'
+        if(await DB.quizAlreadyTaken(db, quizId, req.session.user)) typeObj.type = 'results'
         else typeObj.type = 'tosolve'
         res.json(typeObj)
     } catch(err) {
@@ -59,5 +58,80 @@ export async function sendType(req: any, res: any) {
         if(db) db.close()
     }
 };
+
+export async function sendQuizHeader(req: any, res: any) {
+    let header: INTERFACES.QuizHeader = {quizId: -1, description: 'placeholder'}
+    const db: sqlite.Database = DB.open_db()
+    const quizId: number =  parseInt(req.params.quizId)
+    try {
+        if(quizId === NaN) throw 404
+        if(!req.session.user || req.session.user === undefined) {
+            res.render('users', {csrfToken: req.csrfToken()});
+            return;
+        } 
+        if(! await DB.quizInDB(db, quizId)) {
+            throw 404
+        }
+        header = await DB.collectQuizHeader(db, quizId);
+        
+        res.json(header)
+    } catch(err) {
+        // throw err;
+        console.log(err)
+    } finally {
+        if(db) db.close()
+    }
+};
+
+export async function sendQuiz(req: any, res: any) {
+    let questions: INTERFACES.QuizQuestionsToSolve = {}
+    const db: sqlite.Database = DB.open_db()
+    const quizId: number =  parseInt(req.params.quizId)
+    try {
+        if(quizId === NaN) throw 404
+        if(!req.session.user || req.session.user === undefined) {
+            res.render('users', {csrfToken: req.csrfToken()});
+            return;
+        } 
+        if(! await DB.quizInDB(db, quizId)) {
+            throw 404
+        }
+        questions = await DB.collectQuizQuestions(db, quizId)
+        req.session.timeStart = new Date().getTime();
+        res.json(questions)
+    } catch(err) {
+        // throw err;
+        console.log(err)
+    } finally {
+        if(db) db.close()
+    }
+};
+
+export async function sendResults(req: any, res: any) {
+    let results: INTERFACES.QuizQuestionsResult = {}
+    const db: sqlite.Database = DB.open_db()
+    const quizId: number =  parseInt(req.params.quizId)
+    try {
+        if(quizId === NaN) throw 404
+        if(!req.session.user || req.session.user === undefined) {
+            res.render('users', {csrfToken: req.csrfToken()});
+            return;
+        } 
+        if(! await DB.quizInDB(db, quizId)) {
+            throw 404
+        }
+        if(! await DB.quizAlreadyTaken(db, quizId, req.session.user)) throw 404
+
+        results = await DB.collectUserAnswers(db, quizId, req.session.user)
+        await DB.collectAverageTimes(db, quizId, results)
+        res.json(results)
+    } catch(err) {
+        // throw err;
+        console.log(err)
+    } finally {
+        if(db) db.close()
+    }
+};
+
 
 
