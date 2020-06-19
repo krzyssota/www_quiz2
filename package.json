@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "compile_start": "npm run compile; npm run start",
-    "compileback_start": "tsc -p ./tsconfig.backend.json; npm run start",
-    "compilefront_start": "tsc -p ./tsconfig.frontend.json; npm run start",
-    "compile": "tsc -p ./tsconfig.backend.json; tsc -p ./tsconfig.frontend.json",
+    "compile_start": "npm run compile && npm run start",
+    "compileback_start": "tsc -p ./tsconfig.backend.json && npm run start",
+    "compilefront_start": "tsc -p ./tsconfig.frontend.json && npm run start",
+    "compile": "tsc -p ./tsconfig.backend.json && tsc -p ./tsconfig.frontend.json",
     "start": "node ./dist/app.js",
+    "compile_createdb": "npm run compile && npm run createdb",
     "createdb": "node dist/createDB.js"
   },
   "repository": {

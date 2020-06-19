@@ -19,11 +19,9 @@ const mediumQuizQuestionsJSON: string = `{
 }`
 const hardQuizDescription: string = `Hard quiz.`
 const hardQuizQuestionsJSON: string = `{
-    "questions":{
-        "1": ["99*99", "9801", 2],
-        "2": ["2964:39", "76", 3],
-        "3": ["2123-654", "1469", 6]
-    }
+    "1": ["99*99", "9801", 2],
+    "2": ["2964:39", "76", 3],
+    "3": ["2123-654", "1469", 6]
 }`
 
 export async function init() {
@@ -49,29 +47,9 @@ export async function init() {
             );
             resolve();
         })
-        insertQuiz(db, easyQuizDescription, easyQuizQuestionsJSON);
-        insertQuiz(db, mediumQuizDescription, mediumQuizQuestionsJSON);
-        insertQuiz(db, hardQuizDescription, hardQuizQuestionsJSON);
-
-        /* const easyQuizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(easyQuizQuestionsJSON)
-        const mediumQuizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(mediumQuizQuestionsJSON)
-        const hardQuizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(hardQuizQuestionsJSON)        
-        await insertQuizJSON(db, easyQuizQuestionsJSON, easyQuizDescription);
-        await insertQuizJSON(db, mediumQuizQuestionsJSON, mediumQuizDescription);
-        await insertQuizJSON(db, hardQuizQuestionsJSON, hardQuizDescription);
-        let questionNo: string;
-        for(questionNo in easyQuizQuestions) {
-            console.log('easu ' + questionNo)
-            await insertQuestion(db, easyQuizQuestions, questionNo);
-        }
-        for(questionNo in mediumQuizQuestions) {
-            console.log('easu ' + questionNo)
-            await insertQuestion(db, mediumQuizQuestions, questionNo);
-        }
-        for(questionNo in hardQuizQuestions) {
-            console.log('easu ' + questionNo)
-            await insertQuestion(db, hardQuizQuestions, questionNo);
-        } */
+        await insertQuiz(db, easyQuizDescription, easyQuizQuestionsJSON);
+        await insertQuiz(db, mediumQuizDescription, mediumQuizQuestionsJSON);
+        await insertQuiz(db, hardQuizDescription, hardQuizQuestionsJSON);
     } catch (error) {
         console.error(error);
     } finally {
@@ -80,7 +58,7 @@ export async function init() {
 }
 init();
 
-async function insertQuiz(db: sqlite.Database, quizDescription: string, quizQuestionsJSON: string) {
+async function insertQuiz(db: sqlite.Database, quizDescription: string, quizQuestionsJSON: string): Promise<void> {
     const quizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(quizQuestionsJSON)
     const quizId: number = await insertQuizJSON(db, quizQuestionsJSON, quizDescription);
     let questionNo: string;
@@ -88,19 +66,18 @@ async function insertQuiz(db: sqlite.Database, quizDescription: string, quizQues
         await insertQuestion(db, quizId, quizQuestions, parseInt(questionNo));
     }
 }
+
 async function insertQuizJSON(db: sqlite.Database, quizQuestionsJSON: string, description: string): Promise<number> {
     return new Promise( (resolve, reject) => {
-        db.all(
+        db.run(
             `INSERT OR REPLACE INTO quizJSON (json, description)
-            VALUES (${quizQuestionsJSON}, ${description});
-            SELECT last_insert_rowid()`,
-            (err, rows) => {
+            VALUES ('${quizQuestionsJSON}', '${description}');`,
+            function (err: any, rows: any) {
                 if(err) {
                     reject(new Error(`Internal error while inserting quiz json`));
                     return;
                 }
-                console.log('rows[0] ' + rows[0])
-                resolve(rows[0])
+                resolve(this.lastID)
             }
         );
     })  

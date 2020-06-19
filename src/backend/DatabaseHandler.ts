@@ -1,4 +1,5 @@
 import * as sqlite from 'sqlite3';
+import * as INTERFACES from './communicationB'
 sqlite.verbose();
 
 export async function createTable(db: sqlite.Database, tableName: string, sqlScript: string): Promise<void> {
@@ -83,3 +84,51 @@ export function open_session_db(): sqlite.Database {
         if (err) return console.error(err.message);
     });
 }
+
+export function quizInDB(db: sqlite.Database, quizId: number): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT COUNT(*) AS cnt FROM quizJSON WHERE rowid=${quizId}`,
+            (err, row) => {
+                if(err) {
+                    reject(new Error("Internal error while checing if quizId in database."))
+                }
+                console.log('row ' + row)
+                if(row.cnt === 0) resolve(false)
+                else if (row.cnt === 1) resolve(true)
+                else reject(new Error("Internal error while checing if quizId in database. Shouldn't ever log."))
+        })
+    })
+}
+
+export function quizAlreadyTaken(db: sqlite.Database, login: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT COUNT(*) AS cnt FROM userAnswers WHERE userLogin='${login}';`,
+            (err, row) => {
+                if(err) {
+                    reject(new Error('Internal error while checking if user already taken given quiz.'))
+                }
+                if(row.cnt === 0) resolve(false)
+                else resolve(true)
+                reject(new Error('Internal error while checking if user already taken given quiz. Shouldn\'t ever log.'))
+        })
+    })
+}
+
+export function composeSelection(db: sqlite.Database): Promise<INTERFACES.ShortRepresentations> {
+    let selection: INTERFACES.ShortRepresentations = {};
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT rowid, description FROM quizJSON;`,
+        (err, rows) => {
+            if(err) {
+                reject(new Error('Internal error while extracting quiz selection.'))
+            }
+            let row: any;
+            for(row of rows) {
+                // console.log(row)
+                selection[parseInt(row.rowid)] = row.description
+            }
+            resolve(selection)
+        })
+    })
+}
+

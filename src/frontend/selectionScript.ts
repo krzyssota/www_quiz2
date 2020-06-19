@@ -6,14 +6,25 @@ const ViewQuizButtonEl = document.getElementById("viewQuizButton") as HTMLButton
 
 async function fetchQuizSelectionContent() {
     try {
-        let quizId: number;
-        const response: Response = await fetch('http://localhost:3000/chooseQuiz/selection')
+        console.log('czekam na selection')
+        const response: Response = await fetch('http://localhost:3000/chooseQuiz/selectionRequest')
         const quizSelection: INTERFACES.ShortRepresentations = await response.json()
-        let key: string;
-        for(key in quizSelection) {
-            console.log('key ' + key + ' obj[key] ' + quizSelection[key])
+        console.log('qsel ' + quizSelection)
+
+        for(let quizId in quizSelection) {
+            // console.log('quizId ' + quizId + ' quizSelection[quizId] ' + quizSelection[quizId] + ' quizSelection[parseInt(quizId)] ' + quizSelection[parseInt(quizId)])
+            const description: string = quizSelection[quizId]
+            console.log('id ' + quizId + ' desc ' + description)
+            const row: string = "<tr>"
+                + "<td>" + quizId + "</td>"
+                + "<td>" + description + "</td>"
+                + "<td>" + "<input type=\"radio\" name=\"choice\" value=\"" + quizId + "\">" + "</td>"
+                + "</tr>";
+
+            viewQuizesTableBodyEl.innerHTML += row;
         }
     } catch (err) {
+        // alert('Go back to localhost:3000/users and log in to continue')
         console.error(err)
     }
 }
@@ -24,37 +35,25 @@ ViewQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     const choice: any = new FormData(quizSelectionFormEl);
     let quizId: number;
     for (const entry of choice) {
-        console.log('entry ' + entry + ' ' + entry[0] +' ' + entry[1])
-        quizId = parseInt(entry[1].toString(), 10);
-        console.log('wybrano ' + quizId )
+        quizId = parseInt(entry[1].toString());
     };
     if(quizId === undefined){
-        console.log('nie nie dai')
         return;
     }
-    interface i {
-        [key: number] : string
-    }
     try {
-        console.log('feczuje' + 'http://localhost:3000/chooseQuiz/' + quizId)
-        const response: Response = await fetch('http://localhost:3000/chooseQuiz/' + quizId)
-        const quizObject: i = await response.json()
-        for(let key in quizObject) {
-            console.log('halooo key ' + key + ' obj[key] ' + quizObject[key])
+        const response: Response = await fetch('http://localhost:3000/chooseQuiz/typeRequest/' + quizId)
+        const typeObj: INTERFACES.QuizJSONType = await response.json()
+        if(typeObj.type.localeCompare('tosolve') === 0) {
+            console.log('got type tosolve')
+            // todo tu skonczylem
+            /* const response: Response = await fetch('http://localhost:3000/chooseQuiz/quizRequest/' + quizId + '')
+            const typeObj: INTERFACES.QuizJSONType = await response.json() */
+        } else if(typeObj.type.localeCompare('results') === 0) {
+            console.log('got type results')
+        } else {
+            console.error('shouldnt print')
         }
-        console.log('po forze')
     } catch(err) {
         console.error('Cannot obtain quiz')
     }
 })
-
-const quizId: number = 1;
-const row: string = "<tr>"
-                + "<td>" + quizId + "</td>"
-                + "<td>" + 'easy quiz' + "</td>"
-                + "<td>" + "<input type=\"radio\" name=\"choice\" value=\"" + quizId + "\">" + "</td>"
-                + "</tr>";
-
-console.log('inner ' + viewQuizesTableBodyEl.innerHTML)
-viewQuizesTableBodyEl.innerHTML += row;
-console.log('after ' + viewQuizesTableBodyEl.innerHTML)

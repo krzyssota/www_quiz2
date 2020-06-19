@@ -3,8 +3,8 @@ export interface ShortRepresentations {
     [quizId: number] : string // quizId -> description
 }
 
-export interface JSONType {
-    type: string    // 'tosolve'/'solve'
+export interface QuizJSONType {
+    type: string    // 'tosolve'/'results'
 }
 
 export interface QuizHeader {
