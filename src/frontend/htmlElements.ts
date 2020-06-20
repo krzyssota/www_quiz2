@@ -25,4 +25,10 @@ export const bestScoresTableBodyEl = document.getElementById("bestScoresTableBod
 export const scoreTableBodyEl = document.getElementById("scoreTableBody") as HTMLElement;
 export const overallScoreEl = document.getElementById("overallScore") as HTMLElement;
 
+export const viewQuizesTableBodyEl = document.getElementById("viewQuizesTableBody") as HTMLElement;
+export const resultsTableBodyEl = document.getElementById("resultsTableBody") as HTMLElement;
+export const resultsTableWrapperEl = document.getElementById("resultsTableWrapper") as HTMLElement;
+export const quizSelectionFormEl = document.getElementById("quizSelectionForm") as HTMLFormElement;
+export const viewQuizButtonEl = document.getElementById("viewQuizButton") as HTMLButtonElement
+
 

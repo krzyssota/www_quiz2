@@ -21,7 +21,7 @@ export interface QuizQuestionsToSolve {
 }
 
 export interface QuizQuestionsSolved {
-    [questionNo: number]: [string, string, number]  // questionNo -> [question, user answer, % time spend]
+    [questionNo: number]: [string, number]  // questionNo -> [user answer, % time spend]
 }
 
 export interface QuizQuestionsResult {

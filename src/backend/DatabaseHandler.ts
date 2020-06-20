@@ -135,7 +135,7 @@ export function composeSelection(db: sqlite.Database): Promise<INTERFACES.ShortR
 export function collectQuizHeader(db: sqlite.Database, quizId: number): Promise<INTERFACES.QuizHeader> {
     let header: INTERFACES.QuizHeader = {quizId: -1, description: 'placeholder'}
     return new Promise((resolve, reject) => {
-        db.get(`SELECT description FROM quizJSON WHERE quizId=${quizId};`,
+        db.get(`SELECT description FROM quizJSON WHERE rowid=${quizId};`,
         (err, row) => {
             if(err) {
                 reject(new Error('Internal error while extracting quiz header.'))
@@ -204,4 +204,34 @@ export async function collectAverageTimes(db: sqlite.Database, quizId: number, r
             })
         })
     }
+}
+
+export async function addUserAnswer(db: sqlite.Database, quizId: number, user: string, questionNo: number, userAnswer: string, timeSpent: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+        let question: string, answer: string;
+        let penalty: number;
+        db.get(`SELECT question, answer, penalty FROM quizQuestions WHERE quizId=${quizId} AND questionNo=${questionNo}`,
+        (err, row) => {
+            if(err) {
+                reject(new Error('Internal error while selecting quiz questions.'))
+            }
+            if(row) {
+                question = row.question
+                answer = row.answer
+                penalty = row.penalty
+            }
+        })
+        console.log(' received ans ' + quizId, user, questionNo, question, answer, userAnswer, penalty, timeSpent)
+        const sqlQ: string = `INSERT INTO userAnswers
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+        db.run(sqlQ, [quizId, user, questionNo, question, answer, userAnswer, penalty, timeSpent],
+            (err) => {
+                if(err) {
+                    reject(new Error('Internal error while inserting user\'s answer.'))
+                }
+                if(answer.localeCompare(userAnswer) === 0) resolve(0);
+                else resolve(penalty);
+            }
+        )
+    })
 }
