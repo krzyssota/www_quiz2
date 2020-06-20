@@ -27,10 +27,11 @@ const hardQuizQuestionsJSON: string = `{
 export async function init() {
     const db: sqlite.Database = DB.open_db();
     try {
-        await DB.createUsersTable(db);
         await DB.createQuizJSONTable(db);
+        await DB.createUsersTable(db);
         await DB.createQuizQuestionsTable(db);
         await DB.createUserAnswersTable(db);
+        await DB.createUserScoresTable(db)
 
         await new Promise( (resolve, reject) => {
             const hashedUser1: string = bcrypt.hashSync('user1', 8);

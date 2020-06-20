@@ -71,6 +71,17 @@ export async function createUsersTable(db: sqlite.Database): Promise<void> {
     return createTable(db, 'users', script);        
 }
 
+export async function createUserScoresTable(db: sqlite.Database): Promise<void> {
+    const script: string = `CREATE TABLE userScores (
+        login TEXT,
+        quizId INTEGER,
+        score INTEGER NOT NULL,
+        FOREIGN KEY (quizId) REFERENCES quizJSON(rowid),
+        PRIMARY KEY(login, quizId)
+        );`;
+    return createTable(db, 'userScores', script);        
+}
+
 export function open_db(): sqlite.Database {
     sqlite.verbose();
     return new sqlite.Database('quizAppDatabase.db', (err) => {
@@ -206,24 +217,28 @@ export async function collectAverageTimes(db: sqlite.Database, quizId: number, r
     }
 }
 
-export async function addUserAnswer(db: sqlite.Database, quizId: number, user: string, questionNo: number, userAnswer: string, timeSpent: number): Promise<number> {
-    return new Promise((resolve, reject) => {
-        let question: string, answer: string;
-        let penalty: number;
-        db.get(`SELECT question, answer, penalty FROM quizQuestions WHERE quizId=${quizId} AND questionNo=${questionNo}`,
-        (err, row) => {
-            if(err) {
-                reject(new Error('Internal error while selecting quiz questions.'))
-            }
-            if(row) {
-                question = row.question
-                answer = row.answer
-                penalty = row.penalty
-            }
+export async function getQuestionDetails(db: sqlite.Database, quizId: number, questionNo: number): Promise<[string, string, number]> {
+    return  new Promise((resolve, reject) => {
+        db.get(`SELECT question, answer, penalty FROM quizQuestions WHERE quizId=${quizId} AND questionNo=${questionNo};`,
+            (err, row) => {
+                if(err) {
+                    reject(new Error('Internal error while selecting quiz questions.'))
+                }
+                console.log('row', row)
+                if(row) {
+                    const q: string = row.question;
+                    const a: string = row.answer;
+                    const p: number = parseInt(row.penalty)
+                    resolve([q, a, p])
+                }
         })
-        console.log(' received ans ' + quizId, user, questionNo, question, answer, userAnswer, penalty, timeSpent)
+    })
+}
+
+export async function addUserAnswer(db: sqlite.Database, quizId: number, user: string, questionNo: number, question: string, answer: string, userAnswer: string, penalty: number, timeSpent: number): Promise<number> {
+    return new Promise((resolve, reject) => {
         const sqlQ: string = `INSERT INTO userAnswers
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
         db.run(sqlQ, [quizId, user, questionNo, question, answer, userAnswer, penalty, timeSpent],
             (err) => {
                 if(err) {
@@ -231,6 +246,20 @@ export async function addUserAnswer(db: sqlite.Database, quizId: number, user: s
                 }
                 if(answer.localeCompare(userAnswer) === 0) resolve(0);
                 else resolve(penalty);
+        })
+    })
+}
+
+export async function addUserScore(db: sqlite.Database, user: string, quizId: number, score: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const sqlQ: string = `INSERT INTO userScores
+        VALUES (?, ?, ?);`
+        db.run(sqlQ, [user, quizId, score],
+            (err) => {
+                if(err) {
+                    reject(new Error('Internal error while inserting user\'s score.'))
+                }
+                resolve()
             }
         )
     })

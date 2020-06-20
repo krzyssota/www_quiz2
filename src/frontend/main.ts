@@ -3,7 +3,7 @@ import * as INTERFACES from "./communicationF.js"
 
 // GLOBAL VARIABLES AND INIT
 let quizToSolve: INTERFACES.QuizQuestionsToSolve;
-let quizId: number;
+let gloQuizId: number;
 let quizDescription: string;
 let quizSize: number;
 let cardNumber: number;
@@ -94,6 +94,7 @@ async function requestQuizToSolve(quizId: number): Promise<void> {
     for(let questionNo: number = 1; questionNo <= quizSize; questionNo++) {
         userTimes[questionNo] = 0;
     }
+    gloQuizId = quizId;
 }
 
 async function requestQuizResults(quizId: number): Promise<void> {
@@ -112,18 +113,18 @@ async function requestQuizResults(quizId: number): Promise<void> {
                 + "<td>" + quizToSolve[questionNo][2] + "</td>"
                 + "<td>" + quizToSolve[questionNo][3] + "</td>"
                 + "<td>" + quizToSolve[questionNo][4] + "</td>"
-                + "<td>" + quizToSolve[questionNo][5] + "</td>"
+                + "<td>" + ((quizToSolve[questionNo][5] == -1) ? '-' :  quizToSolve[questionNo][5]) + "</td>"
                 + "</tr>";
         HTML.resultsTableBodyEl.innerHTML += row;
     }
 }
-async function sendResults() {
+async function sendResults(): Promise<void> {
     let answers: INTERFACES.QuizQuestionsSolved = prepareResults()
     try {
-        // todo tutaj 404
-        await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + quizId, {
+        await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + gloQuizId, {
             method: 'POST',
             headers: {
+                // 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(answers)
@@ -214,16 +215,17 @@ HTML.cancelQuizButtonEl.addEventListener('click', (ev: MouseEvent) => {
 })
 
 // SUBMIT QUIZ
-HTML.submitQuizButtonEl.addEventListener('click', (ev: MouseEvent) => {
+HTML.submitQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     ev.preventDefault()
     stopTimer();
     // hide gameplay, display summary
-    HTML.scoreWrapperEl.style.visibility = "visible";
+    // HTML.scoreWrapperEl.style.visibility = "visible";
     HTML.cardWrapperEl.style.visibility = "hidden";
     HTML.timerEl.style.visibility = "hidden";
     setQuizCardElementsVisibility("hidden");
 
-    sendResults();
+    await sendResults();
+    await requestQuizResults(gloQuizId);
     // fillScoreTable();
 })
 
@@ -314,7 +316,7 @@ function prepareResults(): INTERFACES.QuizQuestionsSolved {
 
 function resetVariables() {
     quizToSolve = {}
-    quizId = -1
+    gloQuizId = -1
     quizDescription = ""
     quizSize = -1
 

@@ -4,7 +4,6 @@ import * as DB from './DatabaseHandler.js'
 import { sqlite3 } from 'sqlite3';
 import * as sqlite from 'sqlite3';
 import path = require('path');
-import { type } from 'os';
 
 
 export async function sendSelectionHTML(req: any, res: any) {
@@ -134,6 +133,7 @@ export async function sendResults(req: any, res: any) {
 };
 
 export async function receiveAnswers(req: any, res: any) {
+    console.log('odpalilo sie receiveAns z', req.body)
     const db: sqlite.Database = DB.open_db()
     try {
         const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body
@@ -143,17 +143,43 @@ export async function receiveAnswers(req: any, res: any) {
         if(user === undefined) return;
         const wholeTime: number = new Date().getTime() - req.session.timeStart;
         let overallScore: number = wholeTime/1000;
+        console.log('beg trans')
+        await new Promise((resolve, reject) => {
+            db.run(`BEGIN TRANSACTION;`, (err) => {
+                if(err) reject(new Error("Internal error while beginning transaction."))
+                resolve();
+            })
+        })
         for(let questionNo  = 1; questionNo <= quizSize; questionNo++) {
             const userAnswer: string = solvedQuiz[questionNo][0]
             const timeSpent: number = wholeTime/1000 * solvedQuiz[questionNo][1]
-            const receivedPenalty: number = await DB.addUserAnswer(db, quizId, user, questionNo, userAnswer, timeSpent)
+            console.log('add ans', questionNo, userAnswer)
+            const questionDetails: [string, string, number] = await DB.getQuestionDetails(db, quizId, questionNo)
+            const receivedPenalty: number = await DB.addUserAnswer(db, quizId, user, questionNo, questionDetails[0], questionDetails[1], userAnswer, questionDetails[2], timeSpent)
             overallScore += receivedPenalty
         }
-        // todo policzyc calosciowy czas
-        // tabela userId, idQuizu, score
+        console.log('commmit')
+        await new Promise((resolve, reject) => {
+            db.run(`COMMIT;`, (err) => {
+                if(err) reject(new Error("Internal error while commiting."))
+                resolve()
+            })
 
+        })
+        console.log('adding user score', user, overallScore)
+        await DB.addUserScore(db, user, quizId, overallScore);
         res.sendFile(path.join(__dirname, '/../static/quiz.html'));
     } catch(err) {
+        try {
+            await new Promise((resolve, reject) => {
+                db.run(`ROLLBACK;`, (err) => {
+                    if(err) reject(new Error("Internal error while rollbacking."))
+                    resolve();
+
+                })            })
+        } catch(err) {
+            console.error(err)
+        }
         console.error(err)
     } finally {
         if(db) db.close()

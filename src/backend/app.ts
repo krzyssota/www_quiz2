@@ -6,8 +6,8 @@ sqlite.verbose();
 import cookieParser = require('cookie-parser');
 import * as USERS from './users.js';
 import * as QUIZES from './quizes.js'
-import bodyParser from 'body-parser'
-// var bodyParser = require('body-parser')
+// import bodyParser from 'body-parser'
+var bodyParser = require('body-parser')
 
 // tslint:disable-next-line: no-var-requires
 const session = require('express-session');
@@ -22,6 +22,8 @@ app.set('view engine', 'pug');
 const secretString = '102101101108032116104101032098101114110'
 const port = 3000;
 const jsonParser = bodyParser.json()
+app.use(jsonParser)
+// app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(secretString));
@@ -39,7 +41,7 @@ app.listen(port, err => {
 });
 
 app.use(express.static(path.join(__dirname + '/../static')))
-app.use(bodyParser.json())
+
 
 // USERS
 app.get('/', csrfProtection, USERS.renderUsers)
@@ -58,10 +60,7 @@ app.get('/chooseQuiz/quizHeaderRequest/:quizId(\\d+)', csrfProtection, QUIZES.se
 app.get('/chooseQuiz/quizQuestionsRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendQuiz)
 app.get('/chooseQuiz/quizResultsRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendResults)
 
-app.post('chooseQuiz/sendingResults/:quizId(\\d+)', jsonParser, QUIZES.receiveAnswers)
-
-// app.get('/statistics', csrfProtection, STATISTICS.renderStatistics)
-
+app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers)
 
 // error handling
 app.use(function(err: any, req: any, res: any, next: any) {
