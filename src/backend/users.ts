@@ -7,8 +7,10 @@ import * as sqlite from 'sqlite3';
 export async function renderUsers(req: any, res: any) {
     res.render('users', {login: req.session.user, csrfToken: req.csrfToken()});
 };
+
 export async function logoutUser(req: any, res: any) {
     req.session.user = "";
+    req.session.startTime = undefined
     res.render('users', {csrfToken: req.csrfToken()});
 }
 
@@ -32,7 +34,7 @@ export async function changePassword (req: any, res: any) {
     try {
         await new Promise((resolve, reject) => {
             sqlQ = `SELECT password FROM users WHERE login = ?;`
-            db.all(sqlQ, enteredLogin, (err, rows: any[]) => {
+            db.all(sqlQ, [enteredLogin], (err, rows: any[]) => {
                 if(err) {
                     reject(new Error('Internal error. Couldn\'y verify password.'));
                 }
@@ -63,35 +65,7 @@ export async function changePassword (req: any, res: any) {
                 resolve();
             })
         })
-/*         const rows: any[] = await new Promise((resolve, reject) => {
-            sqlQ = `SELECT * FROM sessions;`
-            sessionsDB.all(sqlQ, (err: any, rows: any[]) => {
-                if(err) reject(new Error('Internal error. Couldn\'t get session records.'));
-                resolve(rows);
-            })
-        })
-        for(const row in rows) {
-            console.log('row ' + row)
-            console.log('rows ' + rows)
 
-            const sid: string = row.sid;
-            const sess: any = JSON.parse(row.sess);
-
-            console.log('row.sess ' + sess)
-            console.log('sess.user ' + sess.user)
-            console.log('sid ' + row.sid)
-
-            if(sess.user.localeCompare(enteredLogin) === 0) {
-                await new Promise((resolve, reject) => {
-                    sqlQ = `DELETE FROM sessions
-                    WHERE sid=${sid};`
-                    sessionsDB.run(sqlQ, (err: any) => {
-                        if(err) reject(new Error('Internal error. Couldn\'t delete session.'))
-                        resolve();
-                    })
-                })
-            }
-        } */
         res.render('users', {csrfToken: req.csrfToken()});
     } catch(err) {
         res.render('users', {changeError: err, csrfToken: req.csrfToken()});
@@ -109,7 +83,7 @@ export async function logUserIn (req: any, res: any) {
     try {
         await new Promise((resolve, reject) => {
             const sqlQ = `SELECT password FROM users WHERE login = ?;`
-            db.all(sqlQ, enteredLogin, (err, rows: any[]) => {
+            db.all(sqlQ, [enteredLogin], (err, rows: any[]) => {
                 if(err) {
                     reject(new Error('Internal error. Couldn\'y verify password.'));
                 }
@@ -132,3 +106,4 @@ export async function logUserIn (req: any, res: any) {
         db.close();
     }
 }
+

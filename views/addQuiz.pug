@@ -1,0 +1,30 @@
+html
+    head
+        title= title
+    style
+        include main.css
+    body
+        div
+            header  
+                p ADD QUIZ
+                    form(action="/addQuiz/newQuiz", method="post")
+                        | JSON:
+                        input(type="text", name='json', required, size="100")
+                        br
+                        | DESCRIPTION:
+                        input(type="text", name="description", required)
+                        input(type="hidden" name="_csrf" value=csrfToken)
+                        button(type="submit") ADD
+                p EXAMPLE:
+                    div
+                        | JSON: {"1": ["10+2", "12", 5], "2": ["2-(-24:4)", "8", 5], "3": ["2*5", "10", 5],  "4": ["3-5", "-2", 5]}
+                        br
+                        | DESCRIPTION: Medium quiz.
+                        br
+                        
+                    a(href='/')
+                        button(type='button') BACK
+                    br
+
+            
+            

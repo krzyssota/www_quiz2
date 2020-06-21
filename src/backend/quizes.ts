@@ -17,7 +17,6 @@ export async function sendSelectionHTML(req: any, res: any) {
 export async function sendSelection(req: any, res: any) {
     const db: sqlite.Database = DB.open_db()
     try {
-        console.log('user ' + req.session.user)
         if(!req.session.user || req.session.user === undefined) {
             res.render('users', {csrfToken: req.csrfToken()});
             return;
@@ -37,12 +36,10 @@ export async function sendType(req: any, res: any) {
     const quizId: number =  parseInt(req.params.quizId)
     try {
         if(quizId === NaN) throw 404
-        console.log('user ' + req.session.user)
         if(!req.session.user || req.session.user === undefined) {
             res.render('users', {csrfToken: req.csrfToken()});
             return;
         } 
-        console.log(req.session.user + ' asked for ' + quizId)
         if(! await DB.quizInDB(db, quizId)) {
             throw 404
             return;
@@ -52,7 +49,6 @@ export async function sendType(req: any, res: any) {
         else typeObj.type = 'cannot'
         res.json(typeObj)
     } catch(err) {
-        // throw err;
         console.log(err)
     } finally {
         if(db) db.close()
@@ -76,7 +72,6 @@ export async function sendQuizHeader(req: any, res: any) {
         
         res.json(header)
     } catch(err) {
-        // throw err;
         console.log(err)
     } finally {
         if(db) db.close()
@@ -100,7 +95,6 @@ export async function sendQuiz(req: any, res: any) {
         req.session.timeStart = new Date().getTime();
         res.json(questions)
     } catch(err) {
-        // throw err;
         console.log(err)
     } finally {
         if(db) db.close()
@@ -126,7 +120,6 @@ export async function sendResults(req: any, res: any) {
         await DB.collectAverageTimes(db, quizId, results)
         res.json(results)
     } catch(err) {
-        // throw err;
         console.log(err)
     } finally {
         if(db) db.close()
@@ -142,6 +135,7 @@ export async function receiveAnswers(req: any, res: any) {
         const user: string = req.session.user
         if(user === undefined) return;
         const wholeTime: number = new Date().getTime() - req.session.timeStart;
+        req.session.timeStart = undefined
         let overallScore: number = wholeTime/1000;
         await new Promise((resolve, reject) => {
             db.run(`BEGIN TRANSACTION;`, (err) => {
@@ -150,10 +144,12 @@ export async function receiveAnswers(req: any, res: any) {
             })
         })
         let lastTime: number = wholeTime/1000;
+        
         for(let questionNo  = 1; questionNo <= quizSize; questionNo++) {
+
             const userAnswer: string = solvedQuiz[questionNo][0]
-            let timeSpent: number = wholeTime/1000 * solvedQuiz[questionNo][1]
-            if(questionNo === quizSize) timeSpent = lastTime
+            let timeSpent: number = Math.round((wholeTime/1000 * solvedQuiz[questionNo][1]) * 100)/100 
+            if(questionNo === quizSize) timeSpent =   Math.round(lastTime * 100)/100 
             else  lastTime -= timeSpent
 
             const questionDetails: [string, string, number] = await DB.getQuestionDetails(db, quizId, questionNo)
@@ -204,7 +200,25 @@ export async function sendTop(req: any, res: any) {
 
 export async function cancelQuiz(req: any, res: any) {
     req.session.timeStart = undefined
-    console.log('halo')
     res.json({key: 'value'})
 };
 
+export async function renderNewQuiz(req: any, res: any) {
+    res.render('addQuiz', {csrfToken: req.csrfToken()});
+};
+
+function escape(string: string) {
+    return string.replace( /(<([^>]+)>)/ig, '');
+}
+
+export async function addQuiz(req: any, res: any) {
+    const db: sqlite.Database = DB.open_db()
+    try {
+        await DB.insertQuiz(db, req.body.description, escape(req.body.json));
+    } catch(err) {
+        console.log(err)
+    } finally {
+        if(db) db.close()
+        res.render('users', {csrfToken: req.csrfToken()});
+    } 
+}

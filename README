@@ -1,0 +1,23 @@
+Bazę danych tworzymy komendą npm run createdb.
+
+Aplikacje kompilujemy komendą npm run compile.
+
+Serwer odpalamy komendą npm run start (by serwer działał poprawnie MUSI być utworzona uprzednio baza danych).
+
+Testy odpalamy komendą npm run tests (serwer musi byc odpalony w drugim oknie terminala).
+
+LOGOWANIE: http://localhost:3000/users
+
+DODAWANIE NOWEGO QUIZU DO BAZY: http://localhost:3000/addQuiz
+Quiz ten jest parsowany funkcją
+
+function escape(string: string) {
+    return string.replace( /(<([^>]+)>)/ig, '');
+}
+by nie zawierać skryptu jsowego kopiącego kryptowaluty
+i podawany jest do bazy danych za pomocą parametrów ( ~ "INSERT INTO table VALUES (?);`, [value])
+
+WYBIERANIE QUIZU: http://localhost:3000/chooseQuiz
+
+Do poszczególnych funkcjonalności prowadzą tez odpowiednie przyciski.
+

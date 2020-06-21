@@ -134,7 +134,6 @@ async function sendResults(): Promise<void> {
         await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + gloQuizId, {
             method: 'POST',
             headers: {
-                // 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(answers)
@@ -229,9 +228,9 @@ HTML.cancelQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
 // SUBMIT QUIZ
 HTML.submitQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     ev.preventDefault()
+    saveTimeStatistics();
     stopTimer();
     // hide gameplay, display summary
-    // HTML.scoreWrapperEl.style.visibility = "visible";
     HTML.cardWrapperEl.style.visibility = "hidden";
     HTML.timerEl.style.visibility = "hidden";
     setQuizCardElementsVisibility("hidden");
@@ -285,32 +284,11 @@ function prepareResults(): INTERFACES.QuizQuestionsSolved {
         totalTime += userTimes[questionNo]
     }
     for(let questionNo = 1; questionNo <= quizSize; questionNo++) { 
-        results[questionNo] = [userAnswers[questionNo], userTimes[questionNo]/totalTime]
+        results[questionNo] = [userAnswers[questionNo], (userTimes[questionNo]/totalTime)]
     }
+    
     return results;
 }
-
-// prepare score table for summary
-/* function fillScoreTable(): void {
-    let rows: string = "";
-
-    for (let i = 1; i <= quizSize; i++) {
-        const correctAns: boolean = (userAnswers[i] === currQuiz.questions[i][1]);
-        const fine: number = (correctAns ? 0 : currQuiz.questions[i][2])
-
-        const row = "<tr style=\"background-color:" + (correctAns ? " green" : "red") + "\">"
-            + "<td>" + currQuiz.questions[i][0] + "</td>"
-            + "<td>" + userAnswers[i] + "</td>"
-            + "<td>" + userTimes[i] + "</td>"
-            + "<td>" + fine + "</td>"
-            + "</tr>"
-
-        rows = rows + row;
-        timeSpent += +userTimes[i] + +fine;
-    }
-    HTML.scoreTableBodyEl.innerHTML = rows;
-    HTML.overallScoreEl.innerHTML = timeSpent.toString();
-} */
 
 function resetVariables() {
     quizToSolve = {}

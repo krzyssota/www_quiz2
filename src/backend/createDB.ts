@@ -1,6 +1,5 @@
 import * as DB from './DatabaseHandler.js'
 import * as sqlite from 'sqlite3';
-import * as INTERFACES from './communicationB.js'
 import bcrypt = require('bcryptjs')
 
 const easyQuizDescription: string = `Introductory quiz.`
@@ -48,9 +47,9 @@ export async function init() {
             );
             resolve();
         })
-        await insertQuiz(db, easyQuizDescription, easyQuizQuestionsJSON);
-        await insertQuiz(db, mediumQuizDescription, mediumQuizQuestionsJSON);
-        await insertQuiz(db, hardQuizDescription, hardQuizQuestionsJSON);
+        await DB.insertQuiz(db, easyQuizDescription, easyQuizQuestionsJSON);
+        await DB.insertQuiz(db, mediumQuizDescription, mediumQuizQuestionsJSON);
+        await DB.insertQuiz(db, hardQuizDescription, hardQuizQuestionsJSON);
     } catch (error) {
         console.error(error);
     } finally {
@@ -58,44 +57,3 @@ export async function init() {
     }
 }
 init();
-
-async function insertQuiz(db: sqlite.Database, quizDescription: string, quizQuestionsJSON: string): Promise<void> {
-    const quizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(quizQuestionsJSON)
-    const quizId: number = await insertQuizJSON(db, quizQuestionsJSON, quizDescription);
-    let questionNo: string;
-    for(questionNo in quizQuestions) {
-        await insertQuestion(db, quizId, quizQuestions, parseInt(questionNo));
-    }
-}
-
-async function insertQuizJSON(db: sqlite.Database, quizQuestionsJSON: string, description: string): Promise<number> {
-    return new Promise( (resolve, reject) => {
-        db.run(
-            `INSERT OR REPLACE INTO quizJSON (json, description)
-            VALUES ('${quizQuestionsJSON}', '${description}');`,
-            function (err: any, rows: any) {
-                if(err) {
-                    reject(new Error(`Internal error while inserting quiz json`));
-                    return;
-                }
-                resolve(this.lastID)
-            }
-        );
-    })  
-}
-
-async function insertQuestion(db: sqlite.Database, quizId: number, quiz: INTERFACES.QuizQuestionsInDB, questionNo: number): Promise<void> {
-    return new Promise( (resolve, reject) => {
-        db.run(
-            `INSERT OR REPLACE INTO quizQuestions (quizId, questionNo, question, answer, penalty)
-            VALUES (${quizId}, ${questionNo}, '${quiz[questionNo][0]}', '${quiz[questionNo][1]}', ${quiz[questionNo][2]});`,
-            (err) => {
-                if(err) {
-                    reject(new Error(`Internal error while inserting quiz question`));
-                    return;
-                }
-            }
-        );
-        resolve();
-    })  
-}

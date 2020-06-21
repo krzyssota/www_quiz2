@@ -6,7 +6,6 @@ sqlite.verbose();
 import cookieParser = require('cookie-parser');
 import * as USERS from './users.js';
 import * as QUIZES from './quizes.js'
-// import bodyParser from 'body-parser'
 var bodyParser = require('body-parser')
 
 // tslint:disable-next-line: no-var-requires
@@ -23,7 +22,6 @@ const secretString = '102101101108032116104101032098101114110'
 const port = 3000;
 const jsonParser = bodyParser.json()
 app.use(jsonParser)
-// app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(secretString));
@@ -42,17 +40,16 @@ app.listen(port, err => {
 
 app.use(express.static(path.join(__dirname + '/../static')))
 
-
-// USERS
+// log in, log out, change password
 app.get('/', csrfProtection, USERS.renderUsers)
 app.get('/users', csrfProtection, USERS.renderUsers)
 app.get('/users/changePassword', csrfProtection, USERS.renderUsers)
 app.get('/users/login', csrfProtection, USERS.renderUsers)
-
 app.get('/users/logout', csrfProtection, USERS.logoutUser)
 app.post('/users/changePassword', csrfProtection, USERS.changePassword)
 app.post('/users/login', csrfProtection, USERS.logUserIn)
 
+// choosing, sending quizes and receiving client's solved quizes
 app.get('/chooseQuiz', csrfProtection, QUIZES.sendSelectionHTML)
 app.get('/chooseQuiz/selectionRequest', csrfProtection, QUIZES.sendSelection)
 app.get('/chooseQuiz/typeRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendType)
@@ -62,7 +59,11 @@ app.get('/chooseQuiz/quizResultsRequest/:quizId(\\d+)', csrfProtection, QUIZES.s
 app.get('/chooseQuiz/quizTop5/:quizId(\\d+)', csrfProtection, QUIZES.sendTop)
 app.get('/cancelledQuiz', csrfProtection, QUIZES.cancelQuiz)
 
+// receiving and adding new quiz proposed by client
+app.get('/addQuiz', csrfProtection, QUIZES.renderNewQuiz)
+app.post('/addQuiz/newQuiz', csrfProtection, QUIZES.addQuiz)
 
+// receiving results from client
 app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers)
 
 // error handling

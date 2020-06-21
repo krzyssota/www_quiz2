@@ -40,27 +40,11 @@ let fourthQTime = '#resultsTableBody > tr:nth-child(4) > td:nth-child(6)'
 
 describe('reservation form test', function () {
 
-    // let driver: ThenableWebDriver = undefined;
     const localhost = `http://localhost:3000`;
 
-    this.beforeAll(async function () {
-        
-    })
-
     this.beforeEach(async function () {
-        // this.timeout(TIMEOUT);
-        // driver = new Builder().forBrowser("firefox").build();
         await driver.get(localhost);
         await sleep(nap)
-    })
-
-    this.afterEach(async function () {
-        // await driver.close();
-         // driver = undefined;
-    })
-
-    this.afterAll(async function () {
-        // await driver.close()
     })
 
     it('take quiz only once', async function () {
@@ -130,15 +114,7 @@ describe('reservation form test', function () {
         expect(login).to.exist
     });
 
-    /*
-    Aplikacja powinna pobierać listę quizów a następnie pojedyncze quizy z serwera WWW w postaci JSONów
-    a następnie powinna odsyłać na ten sam serwer odpowiedzi (wszystkie odpowiedzi do quizu na raz a nie pojedynczo)
-    oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem (np. pyt1: 10%, pyt2: 30%, pyt3: 60%).*/
-
     it('it should get data send over by a json', async function () {
-
-     /*    await driver.get(localhost + '/chooseQuiz');
-        await sleep(nap) */
 
         await logIn('user2', 'changed');
         await sleep(nap)
@@ -183,15 +159,6 @@ describe('reservation form test', function () {
         expect (third).to.be.lessThan(fourth)
     })
 
-
-   /*  Aplikacja powinna pobierać listę quizów a następnie pojedyncze quizy z serwera WWW
-    w postaci JSONów a następnie powinna odsyłać na ten sam serwer odpowiedzi
-    (wszystkie odpowiedzi do quizu na raz a nie pojedynczo)
-    oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem
-    (np. pyt1: 10%, pyt2: 30%, pyt3: 60%) */
-
-
-
     async function logIn(login :string, password: string): Promise<void> {
         await (await driver.find(loginSel)).sendKeys(login);
         await (await driver.find(passSel)).sendKeys(password);
@@ -229,59 +196,8 @@ describe('reservation form test', function () {
 
     }
 
-
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms))
     }
-
-    /*     it('button not clickable if date is from the past', async () => {
-        await fill_form(date_from_the_past);
-        expect (await driver.find('button[id=submit_button]').getAttribute("disabled")).to.be.equal("true");
-    });
-
-    it('reset button resets the text fields', async () => {
-        await driver.find('button[id=reset_button]').doClick();
-        expect (await get_input_by_id("imie")).to.equal("");
-        expect (await get_input_by_id("nazwisko")).to.equal("");
-        expect (await get_input_by_id("skad")).to.equal("");
-        expect (await get_input_by_id("dokad")).to.equal("");
-    });
-
-    it('links not clickable after the reservations were made', async () => {
-        await fill_form(date_from_future);
-        await driver.find('button[id=submit_button]').doClick();
-
-        // reservation info correct
-        expect(await driver.find("div[id=potwierdzenie_rezerwacji]").getAttribute("innerHTML")).
-        to.equal(
-        (await get_input_by_id("imie")) + " " +
-        (await get_input_by_id("nazwisko")) + ": " +
-        "rezerwacja dokonana na dzień " +
-        (await get_input_by_id("data_lotu")));
-
-        // link not clickable
-        expect(await driver.find('a').click()
-            .then(() => {
-                return false;
-            })
-            .catch(() => {
-                return true;
-            })
-        ).to.equal(true);
-    }); */
-
-    async function fill_form(date: string) {
-        await driver.find('input[type=date]').sendKeys(date);
-        await driver.find('input[id=imie]').sendKeys('Jan');
-        await driver.find('input[id=nazwisko]').sendKeys('Kowalski');
-        await driver.find('input[id=skad]').sendKeys('Wwa');
-        await driver.find('input[id=dokad]').sendKeys('Krk');
-    }
-
-    async function get_input_by_id(id: string) {
-        const arg = 'input[id=' + id + ']';
-        return (await driver.find(arg)).value();
-    }
-
 })
 

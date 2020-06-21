@@ -103,7 +103,6 @@ export function quizInDB(db: sqlite.Database, quizId: number): Promise<boolean> 
                 if(err) {
                     reject(new Error("Internal error while checing if quizId in database."))
                 }
-                console.log('row ' + row)
                 if(row.cnt === 0) resolve(false)
                 else if (row.cnt === 1) resolve(true)
                 else reject(new Error("Internal error while checing if quizId in database. Shouldn't ever log."))
@@ -135,7 +134,6 @@ export function composeSelection(db: sqlite.Database): Promise<INTERFACES.ShortR
             }
             let row: any;
             for(row of rows) {
-                // console.log(row)
                 selection[parseInt(row.rowid)] = row.description
             }
             resolve(selection)
@@ -209,7 +207,6 @@ export async function collectAverageTimes(db: sqlite.Database, quizId: number, r
                 for(row of rows) {
                     timeSum += parseInt(row.timeSpent)
                 }
-                console.log('quiz ' + quizId + ' questNo ' + questionNo + ' timesum ' + timeSum + ' usernumber ' + usersNumber)
                 if(usersNumber !== 0) results[questionNo][5] = timeSum/usersNumber
                 resolve();
             })
@@ -224,7 +221,6 @@ export async function getQuestionDetails(db: sqlite.Database, quizId: number, qu
                 if(err) {
                     reject(new Error('Internal error while selecting quiz questions.'))
                 }
-                console.log('row', row)
                 if(row) {
                     const q: string = row.question;
                     const a: string = row.answer;
@@ -282,4 +278,47 @@ export function collectTopFive(db: sqlite.Database, quizId: number): Promise<INT
             resolve(topFive)
         })
     })
+}
+
+
+export async function insertQuiz(db: sqlite.Database, quizDescription: string, quizQuestionsJSON: string): Promise<void> {
+    const quizQuestions: INTERFACES.QuizQuestionsInDB = JSON.parse(quizQuestionsJSON)
+    const quizId: number = await insertQuizJSON(db, quizQuestionsJSON, quizDescription);
+    let questionNo: string;
+    for(questionNo in quizQuestions) {
+        await insertQuestion(db, quizId, quizQuestions, parseInt(questionNo));
+    }
+}
+
+export async function insertQuizJSON(db: sqlite.Database, quizQuestionsJSON: string, description: string): Promise<number> {
+    return new Promise( (resolve, reject) => {
+        db.run(
+            `INSERT OR REPLACE INTO quizJSON (json, description)
+            VALUES (?, ?);`, [quizQuestionsJSON, description],
+            function (err: any, rows: any) {
+                if(err) {
+                    reject(new Error(`Internal error while inserting quiz json`));
+                    return;
+                }
+                resolve(this.lastID)
+            }
+        );
+    })  
+}
+
+export async function insertQuestion(db: sqlite.Database, quizId: number, quiz: INTERFACES.QuizQuestionsInDB, questionNo: number): Promise<void> {
+    return new Promise( (resolve, reject) => {
+        db.run(
+            `INSERT OR REPLACE INTO quizQuestions (quizId, questionNo, question, answer, penalty)
+            VALUES (?, ?, ?, ?, ?);`,
+            [quizId, questionNo, quiz[questionNo][0], quiz[questionNo][1], quiz[questionNo][2]],
+            (err) => {
+                if(err) {
+                    reject(new Error(`Internal error while inserting quiz question`));
+                    return;
+                }
+            }
+        );
+        resolve();
+    })  
 }
