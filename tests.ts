@@ -57,15 +57,100 @@ describe('reservation form test', function () {
         // await driver.close()
     })
 
- /*    it('take quiz only once', async function () {
+    it('take quiz only once', async function () {
 
         await logIn('user1', 'user1');
+        await sleep(nap)
+       
+        await seeSelection();
+        await sleep(nap)
+
+        await chooseQuiz();
+        await sleep(nap)
+        
+        await solveQuiz();
+        await sleep(nap)
+       
+
+        await driver.get(localhost + '/chooseQuiz');
+        await sleep(nap)
+
+   /*      await (await driver.find(viewButtonSel)).doClick();
+        await sleep(nap) */
+
+        await (await driver.find(radioSel)).doClick()
+        await (await driver.find(viewButtonSel)).doClick()
+        await sleep(nap)
+
+        // results summary is displayed instead of quizCard which would appear if the quiz was enabled to be solved again
+        expect (await (await driver.find(scoreWrapperSel)).isDisplayed()).to.be.equal(true)
+        expect (await (await driver.find(quizCardSel)).isDisplayed()).to.be.equal(false)
+
+        await driver.get(localhost);
+        await sleep(nap)
+        await (await driver.find(logoutButtonSel)).doClick();
+        await sleep(nap)
+    
+    })
+
+    it('changing password logs out user\'s session', async function () {
+        await sleep(50*nap)
+        await logIn('user2', 'user2')
+        await sleep(nap)
+
+        // saving and deleting cookies
+        let cookie = await driver.manage().getCookie('connect.sid');
+        await sleep(nap)
+
+        await driver.manage().deleteAllCookies();
+        await sleep(nap)
+
+        // log in again
+        await driver.get(localhost);
+        await sleep(nap)
+
+        await changePassword('user2', 'user2', 'changed')
+        await sleep(nap)
+  
+        await driver.manage().deleteAllCookies();
+        await sleep(nap)
+
+        // load old cookies and test if I'm logged out
+        await driver.manage().addCookie({ name: 'connect.sid', value: cookie.value });
+        await sleep(nap)
+
+        // this request, when user is not logged in, will redirect back to users page instead of /chooseQuiz
+        // which contains login button
+        await driver.get(localhost + '/chooseQuiz');
+        await sleep(nap)
+
+        let login = await driver.find(loginSel)
+        expect(login).to.exist
+    });
+
+    /*
+    Aplikacja powinna pobierać listę quizów a następnie pojedyncze quizy z serwera WWW w postaci JSONów
+    a następnie powinna odsyłać na ten sam serwer odpowiedzi (wszystkie odpowiedzi do quizu na raz a nie pojedynczo)
+    oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem (np. pyt1: 10%, pyt2: 30%, pyt3: 60%).*/
+
+  /*   it('it should get data send over by a json', async function () {
+
+        await logIn('user2', 'user2');
        
         await seeSelection();
 
         await chooseQuiz();
         
-        await solveQuiz();
+        await (await driver.find(nextButtonSel)).doClick()
+        await sleep(nap)
+        for(let i = 1; i <= 4; i++) {
+            await (await driver.find(answerInputSel)).sendKeys(1);
+            await sleep(i*1000)
+            await (await driver.find(submitAnsSel)).doClick()
+            await (await driver.find(nextButtonSel)).doClick()
+            await sleep(nap)
+        }
+        await (await driver.find(submitQuizSel)).doClick()
        
 
         await driver.get(localhost + '/chooseQuiz');
@@ -82,44 +167,6 @@ describe('reservation form test', function () {
         expect (await (await driver.find(quizCardSel)).isDisplayed()).to.be.equal(false)
     }) */
 
-    it('changing password logs out user\'s session', async function () {
-
-        await logIn('user2', 'user2')
-
-        // saving and deleting cookies
-        let cookie = await driver.manage().getCookie('connect.sid');
-
-        await driver.manage().deleteAllCookies();
-
-        // log in again
-        await driver.get(localhost);
-        await sleep(nap)
-
-        await changePassword('user2', 'user2', 'changed')
-  
-        await driver.manage().deleteAllCookies();
-        await sleep(nap)
-
-        // load old cookies and test if I'm logged out
-        await driver.manage().addCookie({ name: 'connect.sid', value: cookie.value });
-        await sleep(nap)
-
-        // this request, when user is not logged in, will redirect back to users page instead of /chooseQuiz
-        // which contains login button
-        await driver.get(localhost + '/chooseQuiz');
-        let login = await driver.find(loginSel)
-        expect(login).to.exist
-    });
-
-    /*
-    Po zmianie hasła sesje użytkownika, który zmienił hasło powinny być wylogowywane. Napisz test tego zachowania w Selenium. W tym celu możesz na przykład:
-    zapisać ciasteczka jednej sesji,
-    usunąć je z przeglądarki, 
-    stworzyć drugą sesję,
-    zmienić hasło,
-    wczytać ciasteczka z pierwszej sesji,
-    sprawdzić, że jesteś wylogowany. */
-
 
    /*  Aplikacja powinna pobierać listę quizów a następnie pojedyncze quizy z serwera WWW
     w postaci JSONów a następnie powinna odsyłać na ten sam serwer odpowiedzi
@@ -127,22 +174,22 @@ describe('reservation form test', function () {
     oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem
     (np. pyt1: 10%, pyt2: 30%, pyt3: 60%) */
 
+
+
     async function logIn(login :string, password: string): Promise<void> {
         await (await driver.find(loginSel)).sendKeys(login);
         await (await driver.find(passSel)).sendKeys(password);
         await (await driver.find(loginButtonSel)).doClick();
-        await sleep(nap)
+
     }
 
     async function seeSelection() {
         await (await driver.find(chooseButtonSel)).doClick();
-        await sleep(nap)
     }
 
     async function chooseQuiz() {
         await (await driver.find(radioSel)).doClick()
         await (await driver.find(viewButtonSel)).doClick()
-        await sleep(nap)
     }
 
     async function solveQuiz() {
@@ -163,7 +210,7 @@ describe('reservation form test', function () {
         await (await driver.find(newpassChangeSel)).sendKeys(newPassword);
         await (await driver.find(repeatpassChangeSel)).sendKeys(newPassword);
         await (await driver.find(changepassButtonSel)).doClick();
-        await sleep(nap)
+
     }
 
 
