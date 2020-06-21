@@ -11,6 +11,27 @@ const date_from_the_past = "2020-01-01"
 const date_from_future = "2030-12-22";
 const TIMEOUT = 50000;
 
+let nap: number = 100;
+let loginSel = '#loginWrapper > header > form:nth-child(1) > input[type=text]:nth-child(1)'
+let passSel = '#loginWrapper > header > form:nth-child(1) > input[type=password]:nth-child(3)'
+let loginButtonSel = '#loginWrapper > header > form:nth-child(1) > button'
+let chooseButtonSel = '#loginWrapper > header > a:nth-child(4) > button'
+let radioSel = '#viewQuizesTableBody > tr:nth-child(1) > td:nth-child(3) > input[type=radio]'
+let viewButtonSel = '#viewQuizButton'
+let nextButtonSel = '#nextButton'
+let answerInputSel = '#playersAnswer'
+let submitAnsSel = '#submitAnswerButton'
+let submitQuizSel = '#submitQuizButton'
+let quizCardSel = '#quizCard'
+let scoreWrapperSel = '#scoreWrapper'
+
+let loginChangeSel = '#loginWrapper > header > form:nth-child(3) > input[type=text]:nth-child(1)'
+let oldpassChangeSel = '#loginWrapper > header > form:nth-child(3) > input[type=password]:nth-child(3)'
+let newpassChangeSel = '#loginWrapper > header > form:nth-child(3) > input[type=password]:nth-child(5)'
+let repeatpassChangeSel = '#loginWrapper > header > form:nth-child(3) > input[type=password]:nth-child(7)'
+let changepassButtonSel = '#loginWrapper > header > form:nth-child(3) > button'
+let logoutButtonSel = '#loginWrapper > header > a:nth-child(2) > button'
+
 
 describe('reservation form test', function () {
 
@@ -36,66 +57,59 @@ describe('reservation form test', function () {
         // await driver.close()
     })
 
-    it('just work', async function () {
-        // await new Promise((resolve, reject) => { setTimeout(resolve, 10000)})
-        expect(true).to.be.equal(true)
-    });
+ /*    it('take quiz only once', async function () {
 
+        await logIn('user1', 'user1');
+       
+        await seeSelection();
 
-    // Nie powinno się dać dwukrotnie rozwiązać tego samego quizu, zadbaj o komunikat o błędzie.
-    it('take quiz only once', async function () {
-        let loginSel = '#loginWrapper > header > form:nth-child(1) > input[type=text]:nth-child(1)'
-        let passSel = '#loginWrapper > header > form:nth-child(1) > input[type=password]:nth-child(3)'
-        let loginButtonSel = '#loginWrapper > header > form:nth-child(1) > button'
-        let chooseButtonSel = '#loginWrapper > header > a:nth-child(4) > button'
-        let radioSel = '#viewQuizesTableBody > tr:nth-child(1) > td:nth-child(3) > input[type=radio]'
-        let viewButtonSel = '#viewQuizButton'
-        let nextButtonSel = '#nextButton'
-        let answerInputSel = '#playersAnswer'
-        let submitAnsSel = '#submitAnswerButton'
-        let submitQuizSel = '#submitQuizButton'
-        let quizCardSel = '#quizCard'
-        let scoreWrapperSel = '#scoreWrapper'
+        await chooseQuiz();
         
-        let nap: number = 100;
-
-        // login
-        await (await driver.find(loginSel)).sendKeys('user1');
-        await (await driver.find(passSel)).sendKeys('user1');
-        await (await driver.find(loginButtonSel)).doClick();
-        
-        // see selection
-        await (await driver.find(chooseButtonSel)).doClick();
-        await sleep(nap)
-        // choose
-        await (await driver.find(radioSel)).doClick()
-        await (await driver.find(viewButtonSel)).doClick()
-        await sleep(nap)
-        // solve quiz
-        await (await driver.find(nextButtonSel)).doClick()
-        await sleep(nap)
-        for(let i = 1; i <= 4; i++) {
-            await (await driver.find(answerInputSel)).sendKeys(1);
-            await (await driver.find(submitAnsSel)).doClick()
-            await (await driver.find(nextButtonSel)).doClick()
-            await sleep(nap)
-        }
-        await (await driver.find(submitQuizSel)).doClick()
+        await solveQuiz();
+       
 
         await driver.get(localhost + '/chooseQuiz');
         await sleep(nap)
 
         await (await driver.find(viewButtonSel)).doClick();
         await sleep(nap)
+
         await (await driver.find(radioSel)).doClick()
         await (await driver.find(viewButtonSel)).doClick()
         await sleep(nap)
 
         expect (await (await driver.find(scoreWrapperSel)).isDisplayed()).to.be.equal(true)
         expect (await (await driver.find(quizCardSel)).isDisplayed()).to.be.equal(false)
+    }) */
 
-        // expect(true).to.be.equal(true)
-    })
+    it('changing password logs out user\'s session', async function () {
+
+        await logIn('user2', 'user2')
+
+        // saving and deleting cookies
+        let cookie = await driver.manage().getCookie('connect.sid');
+
+        await driver.manage().deleteAllCookies();
+
+        // log in again
+        await driver.get(localhost);
+        await sleep(nap)
+
+        await changePassword('user2', 'user2', 'changed')
+  
+        await driver.manage().deleteAllCookies();
+        await sleep(nap)
+
+        // load old cookies and test if I'm logged out
+        await driver.manage().addCookie({ name: 'connect.sid', value: cookie.value });
+        await sleep(nap)
+
+        // this request, when user is not logged in, will redirect back to users page instead of /chooseQuiz
+        // which contains login button
+        await driver.get(localhost + '/chooseQuiz');
+        let login = await driver.find(loginSel)
+        expect(login).to.exist
+    });
 
     /*
     Po zmianie hasła sesje użytkownika, który zmienił hasło powinny być wylogowywane. Napisz test tego zachowania w Selenium. W tym celu możesz na przykład:
@@ -113,7 +127,51 @@ describe('reservation form test', function () {
     oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem
     (np. pyt1: 10%, pyt2: 30%, pyt3: 60%) */
 
-/*     it('button not clickable if date is from the past', async () => {
+    async function logIn(login :string, password: string): Promise<void> {
+        await (await driver.find(loginSel)).sendKeys(login);
+        await (await driver.find(passSel)).sendKeys(password);
+        await (await driver.find(loginButtonSel)).doClick();
+        await sleep(nap)
+    }
+
+    async function seeSelection() {
+        await (await driver.find(chooseButtonSel)).doClick();
+        await sleep(nap)
+    }
+
+    async function chooseQuiz() {
+        await (await driver.find(radioSel)).doClick()
+        await (await driver.find(viewButtonSel)).doClick()
+        await sleep(nap)
+    }
+
+    async function solveQuiz() {
+        await (await driver.find(nextButtonSel)).doClick()
+        await sleep(nap)
+        for(let i = 1; i <= 4; i++) {
+            await (await driver.find(answerInputSel)).sendKeys(1);
+            await (await driver.find(submitAnsSel)).doClick()
+            await (await driver.find(nextButtonSel)).doClick()
+            await sleep(nap)
+        }
+        await (await driver.find(submitQuizSel)).doClick()
+    }
+
+    async function changePassword(login :string, password: string, newPassword: string): Promise<void> {
+        await (await driver.find(loginChangeSel)).sendKeys(login);
+        await (await driver.find(oldpassChangeSel)).sendKeys(password);
+        await (await driver.find(newpassChangeSel)).sendKeys(newPassword);
+        await (await driver.find(repeatpassChangeSel)).sendKeys(newPassword);
+        await (await driver.find(changepassButtonSel)).doClick();
+        await sleep(nap)
+    }
+
+
+    async function sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms))
+    }
+
+    /*     it('button not clickable if date is from the past', async () => {
         await fill_form(date_from_the_past);
         expect (await driver.find('button[id=submit_button]').getAttribute("disabled")).to.be.equal("true");
     });
@@ -148,10 +206,6 @@ describe('reservation form test', function () {
             })
         ).to.equal(true);
     }); */
-
-    async function sleep(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms))
-    }
 
     async function fill_form(date: string) {
         await driver.find('input[type=date]').sendKeys(date);
