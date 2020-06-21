@@ -17,5 +17,8 @@
     },
     "include": [
         "./src/backend/*"
+    ],
+    "exclude": [
+        "./tests.ts"
     ]
 }

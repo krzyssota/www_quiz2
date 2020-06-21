@@ -59,6 +59,9 @@ app.get('/chooseQuiz/typeRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendType
 app.get('/chooseQuiz/quizHeaderRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendQuizHeader)
 app.get('/chooseQuiz/quizQuestionsRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendQuiz)
 app.get('/chooseQuiz/quizResultsRequest/:quizId(\\d+)', csrfProtection, QUIZES.sendResults)
+app.get('/chooseQuiz/quizTop5/:quizId(\\d+)', csrfProtection, QUIZES.sendTop)
+app.get('/cancelledQuiz', csrfProtection, QUIZES.cancelQuiz)
+
 
 app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers)
 

@@ -48,7 +48,8 @@ export async function sendType(req: any, res: any) {
             return;
         }
         if(await DB.quizAlreadyTaken(db, quizId, req.session.user)) typeObj.type = 'results'
-        else typeObj.type = 'tosolve'
+        else if(req.session.timeStart === undefined) typeObj.type = 'tosolve'
+        else typeObj.type = 'cannot'
         res.json(typeObj)
     } catch(err) {
         // throw err;
@@ -133,7 +134,6 @@ export async function sendResults(req: any, res: any) {
 };
 
 export async function receiveAnswers(req: any, res: any) {
-    console.log('odpalilo sie receiveAns z', req.body)
     const db: sqlite.Database = DB.open_db()
     try {
         const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body
@@ -143,22 +143,23 @@ export async function receiveAnswers(req: any, res: any) {
         if(user === undefined) return;
         const wholeTime: number = new Date().getTime() - req.session.timeStart;
         let overallScore: number = wholeTime/1000;
-        console.log('beg trans')
         await new Promise((resolve, reject) => {
             db.run(`BEGIN TRANSACTION;`, (err) => {
                 if(err) reject(new Error("Internal error while beginning transaction."))
                 resolve();
             })
         })
+        let lastTime: number = wholeTime/1000;
         for(let questionNo  = 1; questionNo <= quizSize; questionNo++) {
             const userAnswer: string = solvedQuiz[questionNo][0]
-            const timeSpent: number = wholeTime/1000 * solvedQuiz[questionNo][1]
-            console.log('add ans', questionNo, userAnswer)
+            let timeSpent: number = wholeTime/1000 * solvedQuiz[questionNo][1]
+            if(questionNo === quizSize) timeSpent = lastTime
+            else  lastTime -= timeSpent
+
             const questionDetails: [string, string, number] = await DB.getQuestionDetails(db, quizId, questionNo)
             const receivedPenalty: number = await DB.addUserAnswer(db, quizId, user, questionNo, questionDetails[0], questionDetails[1], userAnswer, questionDetails[2], timeSpent)
             overallScore += receivedPenalty
         }
-        console.log('commmit')
         await new Promise((resolve, reject) => {
             db.run(`COMMIT;`, (err) => {
                 if(err) reject(new Error("Internal error while commiting."))
@@ -166,7 +167,6 @@ export async function receiveAnswers(req: any, res: any) {
             })
 
         })
-        console.log('adding user score', user, overallScore)
         await DB.addUserScore(db, user, quizId, overallScore);
         res.sendFile(path.join(__dirname, '/../static/quiz.html'));
     } catch(err) {
@@ -186,5 +186,25 @@ export async function receiveAnswers(req: any, res: any) {
     }
 }
 
+export async function sendTop(req: any, res: any) {
+    let topFive: INTERFACES.Top5Times = {}
+    const db: sqlite.Database = DB.open_db()
+    const quizId: number = parseInt(req.params.quizId)
+    try {
+        if(quizId === NaN) throw 404
+        if(! await DB.quizInDB(db, quizId)) throw 404
+        topFive = await DB.collectTopFive(db, quizId)
+        res.json(topFive)
+    } catch(err) {
+        console.log(err)
+    } finally {
+        if(db) db.close()
+    }
+};
 
+export async function cancelQuiz(req: any, res: any) {
+    req.session.timeStart = undefined
+    console.log('halo')
+    res.json({key: 'value'})
+};
 

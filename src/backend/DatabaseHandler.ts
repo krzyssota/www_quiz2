@@ -264,3 +264,22 @@ export async function addUserScore(db: sqlite.Database, user: string, quizId: nu
         )
     })
 }
+
+export function collectTopFive(db: sqlite.Database, quizId: number): Promise<INTERFACES.Top5Times> {
+    let topFive: INTERFACES.Top5Times = {};
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT login, score FROM userScores WHERE quizId=${quizId};`,
+            (err, rows) => {
+                if(err) {
+                    reject(new Error('Internal error while checking best times.'))
+                }
+            let row: any;
+            for(row of rows) {
+                let login: string = row.login
+                let score: number = parseInt(row.score)
+                topFive[login] = score
+            }
+            resolve(topFive)
+        })
+    })
+}

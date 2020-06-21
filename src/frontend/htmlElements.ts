@@ -21,9 +21,7 @@ export const scoreWrapperEl = document.getElementById("scoreWrapper") as HTMLEle
 export const cardWrapperEl = document.getElementById("cardWrapper") as HTMLElement;
 export const startWrapperEl = document.getElementById("startWrapper") as HTMLElement;
 
-export const bestScoresTableBodyEl = document.getElementById("bestScoresTableBody") as HTMLElement;
 export const scoreTableBodyEl = document.getElementById("scoreTableBody") as HTMLElement;
-export const overallScoreEl = document.getElementById("overallScore") as HTMLElement;
 
 export const viewQuizesTableBodyEl = document.getElementById("viewQuizesTableBody") as HTMLElement;
 export const resultsTableBodyEl = document.getElementById("resultsTableBody") as HTMLElement;

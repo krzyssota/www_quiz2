@@ -9,7 +9,9 @@
     "compile": "tsc -p ./tsconfig.backend.json && tsc -p ./tsconfig.frontend.json",
     "start": "node ./dist/app.js",
     "compile_createdb": "npm run compile && npm run createdb",
-    "createdb": "node dist/createDB.js"
+    "createdb": "node dist/createDB.js",
+    "tests": "npm run redoDB && npx mocha -r ts-node/register --timeout 20000 tests.ts",
+    "redoDB": "rm -f quizAppDatabase.db & npm run createdb"
   },
   "repository": {
     "type": "git",
@@ -24,20 +26,30 @@
   "homepage": "https://github.com/krzyssota/mimuw_www_quiz#readme",
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/chai": "^4.2.11",
     "@types/cookie-parser": "^1.4.2",
     "@types/csurf": "^1.9.36",
     "@types/express": "^4.17.6",
     "@types/express-session": "^1.17.0",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.4",
     "@types/pug": "^2.0.4",
+    "@types/selenium-webdriver": "^3.0.17",
     "@types/sqlite3": "^3.1.6",
     "bcryptjs": "^2.4.3",
+    "chai": "^4.2.0",
     "connect-sqlite3": "^0.9.11",
     "cookie-parser": "^1.4.5",
     "csurf": "^1.11.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "mocha": "^8.0.1",
+    "mocha-webdriver": "^0.2.8",
     "pug": "^3.0.0",
-    "sqlite3": "^4.2.0"
-  }
+    "selenium-webdriver": "^3.6.0",
+    "sqlite3": "^4.2.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "devDependencies": {}
 }

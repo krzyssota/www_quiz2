@@ -36,9 +36,9 @@ async function fetchQuizSelectionContent() {
         const response: Response = await fetch('http://localhost:3000/chooseQuiz/selectionRequest')
         const quizSelection: INTERFACES.ShortRepresentations = await response.json()
 
+        HTML.viewQuizesTableBodyEl.innerHTML = ""
         for(let quizId in quizSelection) {
             const description: string = quizSelection[quizId]
-            console.log('id ' + quizId + ' desc ' + description)
             const row: string = "<tr>"
                 + "<td>" + quizId + "</td>"
                 + "<td>" + description + "</td>"
@@ -70,7 +70,7 @@ HTML.viewQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
         } else if(typeObj.type.localeCompare('results') === 0) {
             await requestQuizResults(quizId)
         } else {
-            console.error('shouldnt print')
+            alert('You cannot open two quizes at the same time.')
         }
     } catch(err) {
         console.error('Cannot obtain quiz')
@@ -86,10 +86,6 @@ async function requestQuizHeader(quizId: number) {
 async function requestQuizToSolve(quizId: number): Promise<void> {
     const response: Response = await fetch('http://localhost:3000/chooseQuiz/quizQuestionsRequest/' + quizId)
     quizToSolve = await response.json()
-
-    for(const question in quizToSolve) {
-        console.log('q ' + question + ' ' + quizToSolve[question])
-    }
     quizSize = Object.keys(quizToSolve).length
     for(let questionNo: number = 1; questionNo <= quizSize; questionNo++) {
         userTimes[questionNo] = 0;
@@ -98,7 +94,7 @@ async function requestQuizToSolve(quizId: number): Promise<void> {
 }
 
 async function requestQuizResults(quizId: number): Promise<void> {
-    const response: Response = await fetch('http://localhost:3000/chooseQuiz/quizResultsRequest/' + quizId)
+    let response: Response = await fetch('http://localhost:3000/chooseQuiz/quizResultsRequest/' + quizId)
     const quizToSolve: INTERFACES.QuizQuestionsResult = await response.json()
     
     HTML.quizSelectionFormEl.style.visibility = "hidden"
@@ -117,7 +113,21 @@ async function requestQuizResults(quizId: number): Promise<void> {
                 + "</tr>";
         HTML.resultsTableBodyEl.innerHTML += row;
     }
+    response = await fetch('http://localhost:3000/chooseQuiz/quizTop5/' + quizId)
+    const bestFive: INTERFACES.Top5Times = await response.json()
+
+    let a: HTMLElement = document.getElementById("scoreWrapper") as HTMLElement
+    a.style.visibility = "visible"
+
+    for(let user in bestFive) {
+        const row: string = "<tr>"
+        + "<td>" + user + "</td>"
+        + "<td>" + bestFive[user] + "</td>"
+        + "</tr>";
+        HTML.scoreTableBodyEl.innerHTML += row;
+    }
 }
+
 async function sendResults(): Promise<void> {
     let answers: INTERFACES.QuizQuestionsSolved = prepareResults()
     try {
@@ -204,14 +214,16 @@ HTML.submitAnswerButtonEl.addEventListener('click', (ev: MouseEvent) => {
 })
 
 // CANCEL QUIZ SESSION
-HTML.cancelQuizButtonEl.addEventListener('click', (ev: MouseEvent) => {
+HTML.cancelQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     alert("Cancelling session. Redirecting to the home page. Click \"OK\"");
     HTML.cardWrapperEl.style.visibility = "hidden";
     setQuizCardElementsVisibility("hidden");
     HTML.timerEl.style.visibility = "hidden";
     HTML.startWrapperEl.style.visibility = "visible";
     resetVariables();
-    // todo tutaj fetchować /quizSelection
+
+    await fetch('http://localhost:3000/cancelledQuiz')
+    await fetchQuizSelectionContent();
 })
 
 // SUBMIT QUIZ
@@ -226,21 +238,7 @@ HTML.submitQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
 
     await sendResults();
     await requestQuizResults(gloQuizId);
-    // fillScoreTable();
 })
-
-/* // SAVE SCORE AND STATISTICS
-HTML.saveScoreAndStatisticsButtonEl.addEventListener('click', (ev: MouseEvent) => {
-    // save to database
-    const score: number = timeSpent;
-    const statistics: number[] = userTimes;
-    DB.addToDatabase(score, statistics);
-    // hide summary, display home page
-    HTML.scoreWrapperEl.style.visibility = "hidden";
-    HTML.startWrapperEl.style.visibility = "visible";
-    DB.diplayDataByIndex(HTML.bestScoresTableBodyEl);
-    resetVariables();
-}) */
 
 // clear player's answer input field
 function resetInput() {
