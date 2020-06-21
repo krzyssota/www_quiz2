@@ -32,6 +32,11 @@ let repeatpassChangeSel = '#loginWrapper > header > form:nth-child(3) > input[ty
 let changepassButtonSel = '#loginWrapper > header > form:nth-child(3) > button'
 let logoutButtonSel = '#loginWrapper > header > a:nth-child(2) > button'
 
+let firstQTime = '#resultsTableBody > tr:nth-child(1) > td:nth-child(6)'
+let secondQTime = '#resultsTableBody > tr:nth-child(2) > td:nth-child(6)'
+let thirdQTime = '#resultsTableBody > tr:nth-child(3) > td:nth-child(6)'
+let fourthQTime = '#resultsTableBody > tr:nth-child(4) > td:nth-child(6)'
+
 
 describe('reservation form test', function () {
 
@@ -43,9 +48,10 @@ describe('reservation form test', function () {
     })
 
     this.beforeEach(async function () {
-        this.timeout(TIMEOUT);
+        // this.timeout(TIMEOUT);
         // driver = new Builder().forBrowser("firefox").build();
         await driver.get(localhost);
+        await sleep(nap)
     })
 
     this.afterEach(async function () {
@@ -75,9 +81,6 @@ describe('reservation form test', function () {
         await driver.get(localhost + '/chooseQuiz');
         await sleep(nap)
 
-   /*      await (await driver.find(viewButtonSel)).doClick();
-        await sleep(nap) */
-
         await (await driver.find(radioSel)).doClick()
         await (await driver.find(viewButtonSel)).doClick()
         await sleep(nap)
@@ -94,7 +97,6 @@ describe('reservation form test', function () {
     })
 
     it('changing password logs out user\'s session', async function () {
-        await sleep(50*nap)
         await logIn('user2', 'user2')
         await sleep(nap)
 
@@ -133,39 +135,53 @@ describe('reservation form test', function () {
     a następnie powinna odsyłać na ten sam serwer odpowiedzi (wszystkie odpowiedzi do quizu na raz a nie pojedynczo)
     oraz statystyki w postaci procentowego czasu spędzonego nad konkretnym pytaniem (np. pyt1: 10%, pyt2: 30%, pyt3: 60%).*/
 
-  /*   it('it should get data send over by a json', async function () {
+    it('it should get data send over by a json', async function () {
 
-        await logIn('user2', 'user2');
+     /*    await driver.get(localhost + '/chooseQuiz');
+        await sleep(nap) */
+
+        await logIn('user2', 'changed');
+        await sleep(nap)
        
         await seeSelection();
+        await sleep(nap)
 
         await chooseQuiz();
+        await sleep(nap)
         
         await (await driver.find(nextButtonSel)).doClick()
         await sleep(nap)
         for(let i = 1; i <= 4; i++) {
             await (await driver.find(answerInputSel)).sendKeys(1);
-            await sleep(i*1000)
+            await sleep(i*2000)
             await (await driver.find(submitAnsSel)).doClick()
+            await sleep(nap)
             await (await driver.find(nextButtonSel)).doClick()
             await sleep(nap)
         }
         await (await driver.find(submitQuizSel)).doClick()
-       
 
         await driver.get(localhost + '/chooseQuiz');
-        await sleep(nap)
-
-        await (await driver.find(viewButtonSel)).doClick();
         await sleep(nap)
 
         await (await driver.find(radioSel)).doClick()
         await (await driver.find(viewButtonSel)).doClick()
         await sleep(nap)
 
-        expect (await (await driver.find(scoreWrapperSel)).isDisplayed()).to.be.equal(true)
-        expect (await (await driver.find(quizCardSel)).isDisplayed()).to.be.equal(false)
-    }) */
+        let first: number = parseInt(await (await (await driver.find(firstQTime)).getText()))
+        let second: number = parseInt(await (await (await driver.find(secondQTime)).getText()))
+        let third: number = parseInt(await (await (await driver.find(thirdQTime)).getText()))
+        let fourth: number = parseInt(await (await (await driver.find(fourthQTime)).getText()))
+
+        expect (first * 3).to.be.greaterThan(second)
+        expect (first).to.be.lessThan(second)
+
+        expect (second * 3).to.be.greaterThan(third)
+        expect (second).to.be.lessThan(third)
+
+        expect (third * 3).to.be.greaterThan(fourth)
+        expect (third).to.be.lessThan(fourth)
+    })
 
 
    /*  Aplikacja powinna pobierać listę quizów a następnie pojedyncze quizy z serwera WWW

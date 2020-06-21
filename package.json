@@ -10,7 +10,7 @@
     "start": "node ./dist/app.js",
     "compile_createdb": "npm run compile && npm run createdb",
     "createdb": "node dist/createDB.js",
-    "tests": "npm run redoDB && npx mocha -r ts-node/register --timeout 20000 tests.ts",
+    "tests": "npm run redoDB && npx mocha -r ts-node/register --timeout 50000 tests.ts",
     "redoDB": "rm -f quizAppDatabase.db & npm run createdb"
   },
   "repository": {
