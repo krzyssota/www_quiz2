@@ -1,16 +1,13 @@
-import express = require('express');
-import path = require('path');
-import csurf = require('csurf');
-import * as sqlite from 'sqlite3';
-sqlite.verbose();
-import cookieParser = require('cookie-parser');
+import express from 'express'
+import path from 'path'
+import csurf from 'csurf'
+import cookieParser from 'cookie-parser'
 import * as USERS from './users.js';
 import * as QUIZES from './quizes.js'
-var bodyParser = require('body-parser')
+import bodyParser from 'body-parser'
+import session from 'express-session'
+import connectSqlite from 'connect-sqlite3'
 
-// tslint:disable-next-line: no-var-requires
-const session = require('express-session');
-const connectSqlite = require('connect-sqlite3');
 const SqliteStore = connectSqlite(session);
 const csrfProtection = csurf({ cookie: true });
 
@@ -72,7 +69,6 @@ app.use(function(err: any, req: any, res: any, next: any) {
   res.render('error', { error: err, message: 'error occured :('});
 });
 
-// module.exports = app;
 export default app;
 
 

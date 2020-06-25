@@ -1,10 +1,7 @@
-import bcrypt = require('bcryptjs')
 import * as INTERFACES from './communicationB.js'
 import * as DB from './DatabaseHandler.js'
-import { sqlite3 } from 'sqlite3';
 import * as sqlite from 'sqlite3';
-import path = require('path');
-
+import path from 'path'
 
 export async function sendSelectionHTML(req: any, res: any) {
     if(!req.session.user || req.session.user === undefined) {

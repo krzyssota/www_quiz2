@@ -1,15 +1,5 @@
-import {Capabilities} from 'selenium-webdriver';
-
 import { expect } from 'chai';
-
-import { Builder, driver, ThenableWebDriver } from 'mocha-webdriver';
-import { doesNotMatch } from 'assert';
-// export TS_NODE_COMPILER_OPTIONS='{"lib": ["ES2015"]}';
-// npx mocha -r ts-node/register --timeout 20000 testy_web.ts
-
-const date_from_the_past = "2020-01-01"
-const date_from_future = "2030-12-22";
-const TIMEOUT = 50000;
+import { driver } from 'mocha-webdriver';
 
 let nap: number = 100;
 let loginSel = '#loginWrapper > header > form:nth-child(1) > input[type=text]:nth-child(1)'

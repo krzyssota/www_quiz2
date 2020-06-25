@@ -1,8 +1,6 @@
-import bcrypt = require('bcryptjs')
+import bcrypt from 'bcryptjs'
 import { open_db, open_session_db } from './DatabaseHandler.js'
-import { sqlite3 } from 'sqlite3';
 import * as sqlite from 'sqlite3';
-
 
 export async function renderUsers(req: any, res: any) {
     res.render('users', {login: req.session.user, csrfToken: req.csrfToken()});
@@ -87,7 +85,6 @@ export async function logUserIn (req: any, res: any) {
                 if(err) {
                     reject(new Error('Internal error. Couldn\'y verify password.'));
                 }
-                const bcrypt = require('bcryptjs');
                 let correct = false;
                 for(const row of rows) {
                     if(bcrypt.compareSync(enteredPassword, row.password)) {

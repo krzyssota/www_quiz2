@@ -1,6 +1,6 @@
 import * as DB from './DatabaseHandler.js'
 import * as sqlite from 'sqlite3';
-import bcrypt = require('bcryptjs')
+import bcrypt from 'bcryptjs'
 
 const easyQuizDescription: string = `Introductory quiz.`
 const easyQuizQuestionsJSON: string = `{
