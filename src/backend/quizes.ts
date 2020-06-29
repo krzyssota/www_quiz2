@@ -90,6 +90,8 @@ export async function sendQuiz(req: any, res: any) {
         }
         questions = await DB.collectQuizQuestions(db, quizId)
         req.session.timeStart = new Date().getTime();
+        console.log('csrfToken = ', req.csrfToken())
+        res.setHeader('csrfHeader', req.csrfToken());
         res.json(questions)
     } catch(err) {
         console.log(err)
@@ -126,7 +128,7 @@ export async function sendResults(req: any, res: any) {
 export async function receiveAnswers(req: any, res: any) {
     const db: sqlite.Database = DB.open_db()
     try {
-        const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body
+        const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body // sprawdzic czy poprawny
         const quizSize = Object.keys(solvedQuiz).length
         const quizId: number = parseInt(req.params.quizId)
         const user: string = req.session.user
@@ -135,7 +137,7 @@ export async function receiveAnswers(req: any, res: any) {
         req.session.timeStart = undefined
         let overallScore: number = wholeTime/1000;
         await new Promise((resolve, reject) => {
-            db.run(`BEGIN TRANSACTION;`, (err) => {
+            db.run(`BEGIN TRANSACTION;`, (err) => { // begin exclusive immediate
                 if(err) reject(new Error("Internal error while beginning transaction."))
                 resolve();
             })
@@ -153,6 +155,7 @@ export async function receiveAnswers(req: any, res: any) {
             const receivedPenalty: number = await DB.addUserAnswer(db, quizId, user, questionNo, questionDetails[0], questionDetails[1], userAnswer, questionDetails[2], timeSpent)
             overallScore += receivedPenalty
         }
+        await DB.addUserScore(db, user, quizId, overallScore);
         await new Promise((resolve, reject) => {
             db.run(`COMMIT;`, (err) => {
                 if(err) reject(new Error("Internal error while commiting."))
@@ -160,7 +163,6 @@ export async function receiveAnswers(req: any, res: any) {
             })
 
         })
-        await DB.addUserScore(db, user, quizId, overallScore);
         res.sendFile(path.join(__dirname, '/../static/quiz.html'));
     } catch(err) {
         try {

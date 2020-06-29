@@ -61,7 +61,7 @@ app.get('/addQuiz', csrfProtection, QUIZES.renderNewQuiz)
 app.post('/addQuiz/newQuiz', csrfProtection, QUIZES.addQuiz)
 
 // receiving results from client
-app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers)
+app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers) // csurf 
 
 // error handling
 app.use(function(err: any, req: any, res: any, next: any) {

@@ -14,6 +14,7 @@ let leftTime: number;
 let nIntervId: any;
 let currTime: number;
 let timeSpent: number;
+let csrfToken: any;
 
 // INIT
 resetVariables();
@@ -85,6 +86,8 @@ async function requestQuizHeader(quizId: number) {
 
 async function requestQuizToSolve(quizId: number): Promise<void> {
     const response: Response = await fetch('http://localhost:3000/chooseQuiz/quizQuestionsRequest/' + quizId)
+    csrfToken = response.headers.get('csrfHeader')
+    console.log('csrfToken = ', csrfToken)
     quizToSolve = await response.json()
     quizSize = Object.keys(quizToSolve).length
     for(let questionNo: number = 1; questionNo <= quizSize; questionNo++) {
@@ -134,7 +137,8 @@ async function sendResults(): Promise<void> {
         await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + gloQuizId, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'csrfToken': csrfToken
             },
             body: JSON.stringify(answers)
         });
@@ -221,7 +225,10 @@ HTML.cancelQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     HTML.startWrapperEl.style.visibility = "visible";
     resetVariables();
 
-    await fetch('http://localhost:3000/cancelledQuiz')
+    await fetch('http://localhost:3000/cancelledQuiz', {
+        method: 'GET',
+        headers: {'csrfToken': csrfToken}
+    })
     await fetchQuizSelectionContent();
 })
 
