@@ -144,14 +144,14 @@ function checkIfQuestionSolved(arg: any): arg is INTERFACES.QuizQuestionsSolved 
 export async function receiveAnswers(req: any, res: any) {
     const db: sqlite.Database = DB.open_db()
     try {
-        if(!checkIfQuestionSolved(req.body)) {
-            res.sendFile(path.join(__dirname, '/../static/quiz.html'));
-            return;
-        }
         const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body
         const quizSize = Object.keys(solvedQuiz).length
         const quizId: number = parseInt(req.params.quizId)
         const user: string = req.session.user
+        if(!checkIfQuestionSolved(req.body) || (await DB.quizAlreadyTaken(db, quizId, req.session.user)) === true) {
+            res.sendFile(path.join(__dirname, '/../static/quiz.html'));
+            return;
+        }
         if(user === undefined) return;
         const wholeTime: number = new Date().getTime() - req.session.timeStart;
         req.session.timeStart = undefined
