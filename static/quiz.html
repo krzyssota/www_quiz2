@@ -14,18 +14,42 @@
         <section id="startCard">
             <div class="banner">
                 <p>QUISSUP</p>
-                
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>BEST SCORES</th>
-                    </tr>
-                </thead>
-                <tbody id="bestScoresTableBody">
-                </tbody>
-            </table>
-            <button id="startQuizButton">Start a quiz</button>
+            <form id="quizSelectionForm">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>DESCRIPTION</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="viewQuizesTableBody">
+                    </tbody>
+                </table>
+            </form>
+            <button id="viewQuizButton" type="submit">View quiz</button>
+
+            <div id="resultsTableWrapper" style="visibility: hidden">
+                <table>
+                    <thead>
+                        <tr>
+                            <th> QUESTION NO </th>
+                            <th> QUESTION </th>
+                            <th> CORRECT ANS </th>
+                            <th> YOUR ANS </th>
+                            <th> PENALTY </th>
+                            <th> YOUR TIME </th>
+                            <th> AVG TIME </th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+                <a href="/chooseQuiz">
+                    <button type="button">BACK</button>
+                </a>
+            </div>
         </section>
     </div>
     <div id="cardWrapper" style="visibility: hidden;">
@@ -63,27 +87,16 @@
     </div>
     <div id="scoreWrapper" style="visibility: hidden">
         <table>
-            <caption>SCORE</caption>
+            <caption>BEST</caption>
             <thead>
                 <tr>
-                    <th>question</th>
-                    <th>answer</th>
-                    <th>time spent</th>
-                    <th>time fine</th>
+                    <th> USER </th>
+                    <th> SCORE </th>
                 </tr>
             </thead>
             <tbody id="scoreTableBody">
             </tbody>
-            <tfoot>
-                <tr style="background-color: yellow">
-                    <td colspan="3">OVERALL</td>
-                    <td id="overallScore"></td>
-                </tr>
-            </tfoot>
         </table>
-        <button id="saveScoreButton" style="display: inline">Save score</button>
-        <button id="saveScoreAndStatisticsButton" style="display: inline">Save score and time
-            statistics</button>
     </div>
 
 

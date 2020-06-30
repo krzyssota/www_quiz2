@@ -3,6 +3,7 @@ import { open_db, open_session_db } from './DatabaseHandler.js'
 import * as sqlite from 'sqlite3';
 
 export async function renderUsers(req: any, res: any) {
+    req.session.timeStart = undefined
     res.render('users', {login: req.session.user, csrfToken: req.csrfToken()});
 };
 

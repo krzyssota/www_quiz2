@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(secretString));
 app.use(session({
   secret: secretString,
-  cookie: { maxAge: 15*60*1000 },
+  cookie: { maxAge: 15*60*1000, sameSite: 'strict' },
   resave: false,
   saveUninitialized: true,
   store: new SqliteStore()})
@@ -61,11 +61,11 @@ app.get('/addQuiz', csrfProtection, QUIZES.renderNewQuiz)
 app.post('/addQuiz/newQuiz', csrfProtection, QUIZES.addQuiz)
 
 // receiving results from client
-app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', QUIZES.receiveAnswers) // csurf 
+app.post('/chooseQuiz/sendingResults/:quizId(\\d+)', csrfProtection, QUIZES.receiveAnswers) // csurf 
 
 // error handling
 app.use(function(err: any, req: any, res: any, next: any) {
-  console.error('error: ' + err)
+  console.error('error occured: ' + err)
   res.render('error', { error: err, message: 'error occured :('});
 });
 

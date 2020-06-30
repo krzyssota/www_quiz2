@@ -4,6 +4,7 @@ import * as sqlite from 'sqlite3';
 import path from 'path'
 
 export async function sendSelectionHTML(req: any, res: any) {
+    req.session.timeStart = undefined
     if(!req.session.user || req.session.user === undefined) {
             res.render('users', {csrfToken: req.csrfToken()});
             return;
@@ -90,8 +91,8 @@ export async function sendQuiz(req: any, res: any) {
         }
         questions = await DB.collectQuizQuestions(db, quizId)
         req.session.timeStart = new Date().getTime();
-        console.log('csrfToken = ', req.csrfToken())
-        res.setHeader('csrfHeader', req.csrfToken());
+        // console.log('csrfToken = ', req.csrfToken())
+        res.setHeader('CSRF-Header', req.csrfToken());
         res.json(questions)
     } catch(err) {
         console.log(err)
@@ -125,10 +126,29 @@ export async function sendResults(req: any, res: any) {
     }
 };
 
+function checkIfQuestionSolved(arg: any): arg is INTERFACES.QuizQuestionsSolved {
+    if(typeof(arg) !== "object" || Object.keys(arg).length === 0) {
+        return false;
+    }
+    for (const qNo in arg) {
+        if(!Array.isArray(arg[qNo])
+            || arg[qNo].length !== 2
+            || typeof(arg[qNo][0]) !== "string"
+            || typeof(arg[qNo][1]) !== "number") {
+            return false;
+        }
+    }
+    return true;
+}
+
 export async function receiveAnswers(req: any, res: any) {
     const db: sqlite.Database = DB.open_db()
     try {
-        const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body // sprawdzic czy poprawny
+        if(!checkIfQuestionSolved(req.body)) {
+            res.sendFile(path.join(__dirname, '/../static/quiz.html'));
+            return;
+        }
+        const solvedQuiz: INTERFACES.QuizQuestionsSolved = req.body
         const quizSize = Object.keys(solvedQuiz).length
         const quizId: number = parseInt(req.params.quizId)
         const user: string = req.session.user
@@ -137,7 +157,7 @@ export async function receiveAnswers(req: any, res: any) {
         req.session.timeStart = undefined
         let overallScore: number = wholeTime/1000;
         await new Promise((resolve, reject) => {
-            db.run(`BEGIN TRANSACTION;`, (err) => { // begin exclusive immediate
+            db.run(`BEGIN IMMEDIATE;`, (err) => { // start a new write immediately, without waiting for a write statement
                 if(err) reject(new Error("Internal error while beginning transaction."))
                 resolve();
             })
@@ -155,7 +175,7 @@ export async function receiveAnswers(req: any, res: any) {
             const receivedPenalty: number = await DB.addUserAnswer(db, quizId, user, questionNo, questionDetails[0], questionDetails[1], userAnswer, questionDetails[2], timeSpent)
             overallScore += receivedPenalty
         }
-        await DB.addUserScore(db, user, quizId, overallScore);
+        if(quizSize > 0) await DB.addUserScore(db, user, quizId, overallScore);
         await new Promise((resolve, reject) => {
             db.run(`COMMIT;`, (err) => {
                 if(err) reject(new Error("Internal error while commiting."))
@@ -172,10 +192,12 @@ export async function receiveAnswers(req: any, res: any) {
                     resolve();
 
                 })            })
-        } catch(err) {
-            console.error(err)
+        } catch(err2) {
+            console.error('err2 ', err2)
+        } finally {
+            console.error('err ', err)
+            res.sendFile(path.join(__dirname, '/../static/quiz.html'));
         }
-        console.error(err)
     } finally {
         if(db) db.close()
     }

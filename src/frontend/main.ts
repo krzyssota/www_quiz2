@@ -86,7 +86,7 @@ async function requestQuizHeader(quizId: number) {
 
 async function requestQuizToSolve(quizId: number): Promise<void> {
     const response: Response = await fetch('http://localhost:3000/chooseQuiz/quizQuestionsRequest/' + quizId)
-    csrfToken = response.headers.get('csrfHeader')
+    csrfToken = response.headers.get('CSRF-Header')
     console.log('csrfToken = ', csrfToken)
     quizToSolve = await response.json()
     quizSize = Object.keys(quizToSolve).length
@@ -133,19 +133,14 @@ async function requestQuizResults(quizId: number): Promise<void> {
 
 async function sendResults(): Promise<void> {
     let answers: INTERFACES.QuizQuestionsSolved = prepareResults()
-    try {
-        await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + gloQuizId, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'csrfToken': csrfToken
-            },
-            body: JSON.stringify(answers)
-        });
-    } catch(err) {
-        console.log(err)
-    }
-
+    await fetch('http://localhost:3000/chooseQuiz/sendingResults/' + gloQuizId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify(answers)
+    });
 }
 
 // START QUIZ
@@ -227,7 +222,7 @@ HTML.cancelQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
 
     await fetch('http://localhost:3000/cancelledQuiz', {
         method: 'GET',
-        headers: {'csrfToken': csrfToken}
+        headers: {'X-CSRF-TOKEN': csrfToken}
     })
     await fetchQuizSelectionContent();
 })
@@ -241,9 +236,12 @@ HTML.submitQuizButtonEl.addEventListener('click', async (ev: MouseEvent) => {
     HTML.cardWrapperEl.style.visibility = "hidden";
     HTML.timerEl.style.visibility = "hidden";
     setQuizCardElementsVisibility("hidden");
-
-    await sendResults();
-    await requestQuizResults(gloQuizId);
+    try {
+        await sendResults();
+        await requestQuizResults(gloQuizId);
+    } catch(err) {
+        console.log(err)
+    }
 })
 
 // clear player's answer input field
