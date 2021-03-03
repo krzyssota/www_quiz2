@@ -45,7 +45,7 @@
     "express-session": "^1.17.1",
     "mocha": "^8.0.1",
     "mocha-webdriver": "^0.2.8",
-    "pug": "^3.0.0",
+    "pug": "^3.0.1",
     "selenium-webdriver": "^3.6.0",
     "sqlite3": "^4.2.0",
     "ts-node": "^8.10.2",
